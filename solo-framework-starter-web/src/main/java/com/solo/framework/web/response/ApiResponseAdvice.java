@@ -31,7 +31,6 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
 
         // 如果返回值是String类型，Spring将选择{org.springframework.http.converter.StringHttpMessageConverter}
         // 将其统一包装为ApiResponse对象，然后手动构建为JSON字符串后返回
-        // TODO：这里使用的将是JSON的默认配置，并不是
         if (body instanceof String) {
             return JSON.toJSONString(ApiResponse.success(body));
         }
