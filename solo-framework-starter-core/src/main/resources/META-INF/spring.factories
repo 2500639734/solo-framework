@@ -1,0 +1,5 @@
+org.springframework.context.ApplicationContextInitializer=\
+  com.solo.framework.core.context.SoloFrameworkContextInitializer
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.solo.framework.core.configuration.SoloFrameworkCoreAutoConfiguration
+
