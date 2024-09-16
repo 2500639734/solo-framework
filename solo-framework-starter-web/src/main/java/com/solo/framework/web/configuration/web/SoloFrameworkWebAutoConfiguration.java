@@ -2,7 +2,7 @@ package com.solo.framework.web.configuration.web;
 
 import com.alibaba.fastjson2.support.spring.http.converter.FastJsonHttpMessageConverter;
 import com.solo.framework.core.properties.web.SoloFrameworkWebProperties;
-import com.solo.framework.web.response.ApiResponseAdvice;
+import com.solo.framework.web.handle.ApiResponseAdvice;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -37,8 +37,6 @@ public class SoloFrameworkWebAutoConfiguration implements WebMvcConfigurer {
     public ApiResponseAdvice apiResponseAdvice() {
         return new ApiResponseAdvice();
     }
-
-
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
