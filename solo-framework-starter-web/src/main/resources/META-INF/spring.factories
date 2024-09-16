@@ -1,7 +1,8 @@
 org.springframework.context.ApplicationListener=\
-  com.solo.framework.web.context.SoloFrameworkBootstrapListener
+    com.solo.framework.web.context.SoloFrameworkBootstrapListener
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.solo.framework.web.configuration.SoloFrameworkAutoConfiguration,\
-  com.solo.framework.web.configuration.web.SoloFrameworkWebAutoConfiguration,\
-  com.solo.framework.web.configuration.web.swagger.SoloFrameworkWebSwaggerAutoConfiguration
+    com.solo.framework.web.configuration.SoloFrameworkAutoConfiguration,\
+    com.solo.framework.web.configuration.web.SoloFrameworkWebAutoConfiguration,\
+    com.solo.framework.web.configuration.web.swagger.SoloFrameworkWebSwaggerAutoConfiguration,\
+    com.solo.framework.web.configuration.web.json.SoloFrameworkWebFastJsonAutoConfiguration
 

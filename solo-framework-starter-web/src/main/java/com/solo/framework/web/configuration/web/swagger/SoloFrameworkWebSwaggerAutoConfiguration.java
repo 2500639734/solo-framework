@@ -1,12 +1,11 @@
 package com.solo.framework.web.configuration.web.swagger;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.solo.framework.core.env.SoloFrameworkRuntimeInfo;
 import com.solo.framework.core.properties.web.swagger.SoloFrameworkWebSwaggerProperties;
 import com.solo.framework.core.properties.web.swagger.concat.SoloFrameworkWebSwaggerConcatProperties;
 import lombok.Setter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -30,14 +29,13 @@ import java.util.function.Predicate;
 @Configuration
 @EnableConfigurationProperties(SoloFrameworkWebSwaggerProperties.class)
 public class SoloFrameworkWebSwaggerAutoConfiguration {
-    private static final Logger logger = LoggerFactory.getLogger(SoloFrameworkWebSwaggerAutoConfiguration.class);
 
     @Setter(onMethod_ = {@Autowired})
     private SoloFrameworkWebSwaggerProperties soloFrameworkWebSwaggerProperties;
 
     @Bean
-    @ConditionalOnMissingBean(Docket.class)
     @ConditionalOnClass(Swagger2WebMvcConfiguration.class)
+    @ConditionalOnMissingBean(Docket.class)
     public Docket soloFrameworkSwaggerDocket() {
         if (soloFrameworkWebSwaggerProperties.isEnabled()) {
             // 优先以配置为准; 如果没有配置时默认取 @ComponentScan 扫描的包
@@ -72,7 +70,7 @@ public class SoloFrameworkWebSwaggerAutoConfiguration {
                 .description(swaggerConfig.getDescription())
                 .termsOfServiceUrl(swaggerConfig.getTermsOfServiceUrl())
                 .contact(new Contact(concat.getName(), concat.getUrl(), concat.getEmail()))
-                .version(swaggerConfig.getVersion())
+                .version(StrUtil.blankToDefault(swaggerConfig.getVersion(), SoloFrameworkRuntimeInfo.VERSION))
                 .build();
     }
 

@@ -10,6 +10,9 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 @ConfigurationProperties(prefix = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_PREFIX)
 public class SoloFrameworkProperties {
 
+    /**
+     * 框架web相关配置
+     */
     @NestedConfigurationProperty
     private SoloFrameworkWebProperties web = new SoloFrameworkWebProperties();;
 
