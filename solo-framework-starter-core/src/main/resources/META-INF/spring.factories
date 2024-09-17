@@ -1,5 +1,7 @@
+org.springframework.context.ApplicationListener=\
+    com.solo.framework.core.context.SoloFrameworkCoreBootstrapListener
 org.springframework.context.ApplicationContextInitializer=\
-  com.solo.framework.core.context.SoloFrameworkContextInitializer
+    com.solo.framework.core.context.SoloFrameworkContextInitializer
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.solo.framework.core.configuration.SoloFrameworkCoreAutoConfiguration
+    com.solo.framework.core.configuration.SoloFrameworkCoreAutoConfiguration
 

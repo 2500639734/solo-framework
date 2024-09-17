@@ -1,9 +1,16 @@
 package com.solo.framework.core.env;
 
+import cn.hutool.core.collection.CollUtil;
+import com.solo.framework.core.context.SoloFrameworkContextHolder;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 @Accessors(chain = true)
@@ -28,5 +35,18 @@ public class SoloFrameworkRuntimeInfo {
      * 项目配置{@link org.springframework.context.annotation.ComponentScan}的包
      */
     private Set<String> componentScanPackages;
+
+    public static Set<String> getComponentScanPackages() {
+        if (Objects.isNull(SoloFrameworkContextHolder.getApplicationContext())) {
+            return CollUtil.newHashSet();
+        }
+
+        return SoloFrameworkContextHolder.getApplicationContext()
+                .getBeansWithAnnotation(ComponentScan.class).values().stream()
+                .map(bean -> AnnotatedElementUtils.findMergedAnnotationAttributes(bean.getClass(), ComponentScan.class, false, true))
+                .filter(Objects::nonNull)
+                .flatMap(attributes -> Stream.of(attributes.getStringArray("basePackages")))
+                .collect(Collectors.toSet());
+    }
 
 }

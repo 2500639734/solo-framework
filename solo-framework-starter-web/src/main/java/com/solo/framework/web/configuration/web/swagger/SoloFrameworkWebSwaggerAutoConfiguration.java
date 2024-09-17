@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import springfox.documentation.RequestHandler;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
@@ -33,24 +34,17 @@ public class SoloFrameworkWebSwaggerAutoConfiguration {
     @Setter(onMethod_ = {@Autowired})
     private SoloFrameworkWebSwaggerProperties soloFrameworkWebSwaggerProperties;
 
+    @Lazy
     @Bean
     @ConditionalOnClass(Swagger2WebMvcConfiguration.class)
     @ConditionalOnMissingBean(Docket.class)
     public Docket soloFrameworkSwaggerDocket() {
         if (soloFrameworkWebSwaggerProperties.isEnabled()) {
-            // 优先以配置为准; 如果没有配置时默认取 @ComponentScan 扫描的包
-            Set<String> componentScanPackages = CollUtil.isNotEmpty(soloFrameworkWebSwaggerProperties.getBasePackages())
-                    ? soloFrameworkWebSwaggerProperties.getBasePackages() : SoloFrameworkRuntimeInfo.INSTANCE.getComponentScanPackages();
-            Predicate<RequestHandler> basePackagePredicate = componentScanPackages.stream()
-                    .map(RequestHandlerSelectors::basePackage)
-                    .reduce(Predicate::or)
-                    .orElse(input -> false);
-
             return new Docket(DocumentationType.SWAGGER_2)
                     .apiInfo(apiInfo(soloFrameworkWebSwaggerProperties))
                     .enable(true)
                     .select()
-                    .apis(basePackagePredicate)
+                    .apis(requestHandlerPredicate())
                     .paths(PathSelectors.any())
                     .build();
         }
@@ -61,6 +55,20 @@ public class SoloFrameworkWebSwaggerAutoConfiguration {
                 .apis(RequestHandlerSelectors.none())
                 .paths(PathSelectors.none())
                 .build();
+    }
+
+    private Predicate<RequestHandler> requestHandlerPredicate() {
+        // 优先以配置为准; 如果没有配置时默认取 @ComponentScan 扫描的包
+        Set<String> componentScanPackages = CollUtil.isNotEmpty(soloFrameworkWebSwaggerProperties.getBasePackages()) ?
+                soloFrameworkWebSwaggerProperties.getBasePackages() :
+                SoloFrameworkRuntimeInfo.getComponentScanPackages();
+
+        return CollUtil.isNotEmpty(componentScanPackages) ?
+                componentScanPackages.stream()
+                    .map(RequestHandlerSelectors::basePackage)
+                    .reduce(Predicate::or)
+                    .orElse(input -> false) :
+                input -> false;
     }
 
     private ApiInfo apiInfo(SoloFrameworkWebSwaggerProperties swaggerConfig) {
