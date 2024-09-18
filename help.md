@@ -120,7 +120,7 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
       
 * **FastJSON2**
   * 默认全局序列化策略
-    * 默认字段为null也会进行序列化输出
+    * 默认字段为null不会进行序列化输出
     * 默认序列化的字符编码为UTF-8
     * 日期格式为yyyy-MM-dd HH:mm:ss
   * 自定义配置
@@ -191,22 +191,24 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
         * exceptionClass: 请求异常的类路径
         * exceptionMessage: 请求异常原始信息(适用于非自定义异常的场景)
   * 自定义配置
-    * 如果不需要框架自动包装,可通过@NoApiResponse注解标记,这个注解可以用在类或者方法上,框架默认会自动包装接口返参
-    * 如果需要扩展接口响应,实现一些自定义的逻辑,可以继承com.solo.framework.web.handle.ApiResponseAdvice类, 并重写beforeBodyWrite方法处理自定义逻辑
-      * 继承ApiResponseAdvice处理自定义逻辑时,注意自定义处理逻辑的类需要是一个Spring Bean
+    * 如果需要扩展接口响应字段, 使用自定义的类继承ApiResponse类,增加自己的属性定义
+    * 如果需要扩展接口响应逻辑,实现一些自定义的逻辑, 可以继承com.solo.framework.web.handle.ApiResponseAdvice类, 并重写beforeBodyWrite方法处理自定义逻辑
+      * 继承ApiResponseAdvice处理自定义逻辑时, 自定义处理逻辑的类需要是一个Spring Bean
+    * 如果完全不需要框架自动包装功能, 可通过@NoApiResponse注解标记, 这个注解可以用在类或者方法上, 框架默认会自动包装接口返参
 
   * **全局异常处理**
     * 框架默认对异常做了全局统一处理,这些异常分为两类
-      * 通用异常: 例如404、400等, 建议让框架自行处理, 框架会将其包装为ApiResponse对象,并提供了完善的信息和友好的提示,调用者无需关心
-        * 框架对通用类型的异常类型进行了统一定义,它们被定义在com.solo.framework.web.enums.IErrorCodeEnums类中,可以直接使用
+      * 通用异常: 例如404、400等, 建议让框架自行处理, 框架会将其包装为ApiResponse对象, 并提供了完善的信息和友好的提示, 调用者无需关心
+        * 框架对通用类型的异常类型进行了统一定义, 它们被定义在com.solo.framework.web.enums.IErrorCodeEnums类中, 可以直接使用
           ```java
           SUCCESS(0, "请求成功"),
-          ERROR(-1, "服务器繁忙, 请稍后重试"),
-          ERROR_REQUEST_URI_INVALID(-2, "请求地址无效"),
-          ERROR_REQUEST_PARAMS_INVALID(-3, "请求参数缺失或无效"),
-          ERROR_REQUEST_PARAMS_FORMAT_INVALID(-4, "请求参数格式不符合要求"),
-          ERROR_REQUEST_REQUEST_FAIL(-5, "请求远程调用失败"),
-          ERROR_REQUEST_NETWORK_CONNECTION_FAIL(-6, "请求网络连接失败"),
+          ERROR(-1, "服务器错误, 请联系运维人员处理"),
+          ERROR_REQUEST_REPEAT(-2, "服务器繁忙, 请稍后重试"),
+          ERROR_REQUEST_URI_INVALID(-3, "请求地址无效"),
+          ERROR_REQUEST_PARAMS_INVALID(-4, "请求参数缺失或无效"),
+          ERROR_REQUEST_PARAMS_FORMAT_INVALID(-5, "请求参数格式不符合要求"),
+          ERROR_REQUEST_REQUEST_FAIL(-6, "请求远程调用失败"),
+          ERROR_REQUEST_NETWORK_CONNECTION_FAIL(-7, "请求网络连接失败"),;
           ```
       * 业务异常: 这类异常需要使用者自行定义, 框架会自动捕获并将其包装为ApiResponse对象后返回
         * 自行定义异常枚举类, 然后抛出IErrorException即可
