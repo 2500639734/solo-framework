@@ -1,12 +1,10 @@
 package com.solo.framework.web.response;
 
-import com.alibaba.fastjson2.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.solo.framework.web.enums.IErrorCode;
 import com.solo.framework.web.enums.IErrorCodeEnums;
 import com.solo.framework.web.exception.IErrorException;
 import io.swagger.annotations.ApiModel;
-import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
@@ -15,87 +13,84 @@ import java.time.ZoneId;
 import java.util.Objects;
 
 @ApiModel(description = "Api响应结果")
-@Data
 @Accessors(chain = true)
-public class ApiResponse<T> implements IResponse<T>, Serializable {
+public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 请求响应码
-     */
-    private int resultCode;
+    @Override
+    protected ApiResponseAbstract<T> successResponse(T data) {
+        return ApiResponse.success(data);
+    }
 
-    /**
-     * 请求响应提示信息
-     */
-    private String message;
+    @Override
+    protected ApiResponseAbstract<T> successResponse(@NonNull IErrorCode iErrorCode, T data) {
+        return ApiResponse.success(iErrorCode, data);
+    }
 
-    /**
-     * 请求返参数据
-     */
-    private T data;
+    @Override
+    protected ApiResponseAbstract<T> successResponse(@NonNull int resultCode, @NonNull String message, T data) {
+        return ApiResponse.success(resultCode, message, data);
+    }
 
-    /**
-     * 请求Id
-     */
-    private String traceId;
+    @Override
+    protected ApiResponseAbstract<T> errorResponse(@NonNull int resultCode, @NonNull String message, Throwable exception) {
+        return ApiResponse.error(resultCode, message, exception);
+    }
 
-    /**
-     * 请求异常的类路径
-     */
-    private String exceptionClass;
+    @Override
+    protected ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, Throwable exception) {
+        return ApiResponse.error(iErrorCode, exception);
+    }
 
-    /**
-     * 请求异常原始信息(适用于非自定义异常的场景)
-     */
-    private String exceptionMessage;
+    @Override
+    protected ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, String traceId, Throwable exception) {
+        return ApiResponse.error(iErrorCode, traceId, exception);
+    }
 
-    /**
-     * 请求响应时间戳
-     */
-    private long timestamp;
+    @Override
+    protected ApiResponseAbstract<T> errorResponse(@NonNull int resultCode, @NonNull String message, String traceId, Throwable exception) {
+        return ApiResponse.error(resultCode, message, traceId, exception);
+    }
 
-    /**
-     * 接口异常信息
-     */
-    @JSONField(serialize = false, deserialize = false)
-    @JsonIgnore
-    private transient Throwable exception;
+    @Override
+    protected ApiResponseAbstract<T> buildResponse(@NonNull int resultCode, @NonNull String message, T data, String traceId, Throwable exception) {
+        return ApiResponse.buildApiResponse(resultCode, message, data, traceId, exception);
+    }
 
     public static <T> ApiResponse<T> success(T data) {
         return success(IErrorCodeEnums.SUCCESS, data);
     }
 
-    public static <T> ApiResponse<T> success(IErrorCode iErrorCode, T data) {
+    public static <T> ApiResponse<T> success(@NonNull IErrorCode iErrorCode, T data) {
         return success(iErrorCode.getResultCode(), iErrorCode.getMessage(), data);
     }
 
-    public static <T> ApiResponse<T> success(int resultCode, String message, T data) {
-        return buildApiResponse(resultCode, message, null, data, null);
+    public static <T> ApiResponse<T> success(@NonNull int resultCode, @NonNull String message, T data) {
+        return buildApiResponse(resultCode, message,  data, null, null);
     }
 
-    public static <T> ApiResponse<T> error(int resultCode, String message, Throwable exception) {
+    public static <T> ApiResponse<T> error(@NonNull int resultCode, @NonNull String message, Throwable exception) {
         return error(resultCode, message, null, exception);
     }
 
-    public static <T> ApiResponse<T> error(IErrorCode iErrorCode, Throwable exception) {
+    public static <T> ApiResponse<T> error(@NonNull IErrorCode iErrorCode, Throwable exception) {
         return error(iErrorCode, null, exception);
     }
 
-    public static <T> ApiResponse<T> error(IErrorCode iErrorCode, String traceId, Throwable exception) {
+    public static <T> ApiResponse<T> error(@NonNull IErrorCode iErrorCode, String traceId, Throwable exception) {
         return error(iErrorCode.getResultCode(), iErrorCode.getMessage(), traceId, exception);
     }
 
-    public static <T> ApiResponse<T> error(int resultCode, String message, String traceId, Throwable exception) {
+    public static <T> ApiResponse<T> error(@NonNull int resultCode, @NonNull String message, String traceId, Throwable exception) {
         return buildApiResponse(resultCode, message, traceId, exception);
     }
 
-    public static <T> ApiResponse<T> buildApiResponse(int resultCode, String message, String traceId, Throwable exception) {
-        return buildApiResponse(resultCode, message, traceId, null, exception);
+    public static <T> ApiResponse<T> buildApiResponse(@NonNull int resultCode, @NonNull String message, String traceId, Throwable exception) {
+        return ApiResponse.buildApiResponse(resultCode, message, null, traceId, exception);
     }
 
-    private static <T> ApiResponse<T> buildApiResponse(int resultCode, String message, String traceId, T data, Throwable exception) {
+    private static <T> ApiResponse<T> buildApiResponse(@NonNull int resultCode, @NonNull String message, T data, String traceId, Throwable exception) {
         ApiResponse<T> response = new ApiResponse<>();
         response.setResultCode(resultCode);
         response.setMessage(message);
@@ -113,5 +108,5 @@ public class ApiResponse<T> implements IResponse<T>, Serializable {
         }
         return response;
     }
-
+    
 }

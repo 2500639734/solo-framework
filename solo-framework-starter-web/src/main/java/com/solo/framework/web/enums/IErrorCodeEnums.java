@@ -15,13 +15,17 @@ import java.util.Arrays;
 @ToString
 public enum IErrorCodeEnums implements IErrorCode {
 
+    /**
+     * 系统级别异常定义
+     */
     SUCCESS(0, "请求成功"),
-    ERROR(-1, "服务器繁忙, 请稍后重试"),
-    ERROR_REQUEST_URI_INVALID(-2, "请求地址无效"),
-    ERROR_REQUEST_PARAMS_INVALID(-3, "请求参数缺失或无效"),
-    ERROR_REQUEST_PARAMS_FORMAT_INVALID(-4, "请求参数格式不符合要求"),
-    ERROR_REQUEST_REQUEST_FAIL(-5, "请求远程调用失败"),
-    ERROR_REQUEST_NETWORK_CONNECTION_FAIL(-6, "请求网络连接失败"),;
+    ERROR(-1, "服务器错误, 请联系运维人员处理"),
+    ERROR_REQUEST_REPEAT(-2, "服务器繁忙, 请稍后重试"),
+    ERROR_REQUEST_URI_INVALID(-3, "请求地址无效"),
+    ERROR_REQUEST_PARAMS_INVALID(-4, "请求参数缺失或无效"),
+    ERROR_REQUEST_PARAMS_FORMAT_INVALID(-5, "请求参数格式不符合要求"),
+    ERROR_REQUEST_REQUEST_FAIL(-6, "请求远程调用失败"),
+    ERROR_REQUEST_NETWORK_CONNECTION_FAIL(-7, "请求网络连接失败"),;
 
     /**
      * 错误码：0-成功，其它失败

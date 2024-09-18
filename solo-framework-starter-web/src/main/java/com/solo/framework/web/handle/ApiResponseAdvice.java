@@ -6,6 +6,7 @@ import com.solo.framework.web.enums.IErrorCodeEnums;
 import com.solo.framework.web.exception.IErrorException;
 import com.solo.framework.web.exception.IErrorHttpNoFoundException;
 import com.solo.framework.web.response.ApiResponse;
+import com.solo.framework.web.response.ApiResponseAbstract;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -49,7 +50,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
         checkRequestHttp404(body);
 
         // 直接返回ApiResponse类型,不做任何处理
-        if (body instanceof ApiResponse) {
+        if (body instanceof ApiResponseAbstract) {
             return body;
         }
 
@@ -66,7 +67,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
     /**
      * 请求接口地址错误异常捕获
      * @param ex 请求接口地址错误异常
-     * @return {@link com.solo.framework.web.response.ApiResponse<Void>}
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
@@ -76,7 +77,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
     /**
      * 请求接口参数错误异常捕获
      * @param ex 请求接口参数错误异常
-     * @return {@link com.solo.framework.web.response.ApiResponse<Void>}
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(IErrorHttpNoFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
@@ -86,7 +87,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
     /**
      * 框架自定义错误异常捕获
      * @param ex 框架自定义错误异常
-     * @return {@link com.solo.framework.web.response.ApiResponse<Void>}
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(IErrorException.class)
     public ResponseEntity<ApiResponse<Void>> handleIErrorException(IErrorException ex) {
