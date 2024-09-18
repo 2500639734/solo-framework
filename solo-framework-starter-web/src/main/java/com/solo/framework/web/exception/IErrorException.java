@@ -22,6 +22,7 @@ public class IErrorException extends RuntimeException {
     private final String errorMessage;
 
     public IErrorException(int errorCode, String errorMessage) {
+        super(errorMessage);
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
