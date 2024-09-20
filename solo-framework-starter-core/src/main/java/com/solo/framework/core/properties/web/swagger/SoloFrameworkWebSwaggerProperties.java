@@ -41,7 +41,7 @@ public class SoloFrameworkWebSwaggerProperties {
     /**
      * 文档版本
      */
-    private String version = "1.0.0";
+    private String version = "v1.0.0";
 
     /**
      * swagger文档联系人配置

@@ -3,12 +3,12 @@
 Solo Framework 是一款用于快速构建Spring Boot应用程序的框架,开箱即用,简单方便
 
 ## 框架模块说明
-* solo-framework-starter-common: 默认引入一些开发常用的工具类库以及框架提供的一些工具类 (后续移除starter前缀)
+* `solo-framework-starter-common`: 默认引入一些开发常用的工具类库以及框架提供的一些工具类
   * hutool
-* solo-framework-starter-core: 框架核心部分, 一般无需关注 (后续移除starter前缀)
+* `solo-framework-starter-core`: 框架核心部分, 一般无需关注 
   * 框架配置文件加载
   * 框架基本信息加载
-* solo-framework-starter-web: WEB开发常用配置支持
+* `solo-framework-starter-core`: WEB开发常用配置支持
   * 集成Swagger UI, Knife4j, 提供接口文档支持
   * 集成FastJson2, 并提供自定义序列化策略支持
   * 统一定义接口返参实体, 返参结果自动包装
@@ -73,22 +73,23 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
               # 是否启用swagger(生产环境建议关闭)
               enabled: true
               # swagger文档的标题
-              title: 测试Swagger文档
+              title: Solo Framework API Documentation
               # swagger文档的描述
-              description: 测试API接口
+              description: API documentation for your application
               # swagger文档的版本
               version: v1.0.0
               # swagger文档扫描的包路径(支持多个,默认取scanBasePackages目录)
               base-packages:
-                - com.cloud.orange
+                # - com.x1
+                # - com.x2
               # swagger文档的联系人信息
               concat:
                 # 联系人姓名
-                name: solo
+                name: 
                 # 联系人链接
-                url: xx.com
+                url: 
                 # 联系人email地址
-                email: xx@xx.com
+                email: 
                 
       ```
     * 方式二: 编写java配置类 ( java配置类的方式优先级高于yaml配置的方式 )
@@ -138,7 +139,7 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
               supported-media-types: application/json
               # json序列化编码格式
               chart-set: UTF-8
-              # json序列化日期格式
+              # json序列化/反序列化日期默认格式
               date-format: yyyy-MM-dd HH:mm:ss
               # json反序列化策略(https://github.com/alibaba/fastjson2/blob/main/docs/features_cn.md 驼峰式命名)
               reader-features: fieldBased
@@ -161,83 +162,102 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
       }
       ```
       
-* **接口响应包装**
-  * 框架提供了统一的接口响应类com.solo.framework.web.response.ApiResponse,使用者无需自行定义
-  * 编写接口时只需关注需要返回的实体,框架会自动将其包装作为data属性包装为ApiResponse对象返回
-    * 例如,前面编写的Controller只返回了UserResponse,但最终返回的是ApiResponse,UserResponse作为ApiResponse.data
-      ```json
-      {
-        "data": {
-            "balance": 18.85,
-            "createAt": "2024-09-17 20:21:57",
-            "enabled": 1,
-            "id": 1,
-            "remark": null,
-            "userName": "张三"
-        },
-        "exceptionClass": null,
-        "exceptionMessage": null,
-        "message": "请求成功",
-        "resultCode": 0,
-        "timestamp": 1726575717114,
-        "traceId": null
-      }
-      ```
-      * ApiResponse的属性说明
-        * resultCode: 请求响应码
-        * message: 请求响应提示信息
-        * traceId: 请求Id
-        * timestamp: 请求响应时间戳
-        * exceptionClass: 请求异常的类路径
-        * exceptionMessage: 请求异常原始信息(适用于非自定义异常的场景)
-  * 自定义配置
-    * 如果需要扩展接口响应字段, 使用自定义的类继承ApiResponse类,增加自己的属性定义
-    * 如果需要扩展接口响应逻辑,实现一些自定义的逻辑, 可以继承com.solo.framework.web.handle.ApiResponseAdvice类, 并重写beforeBodyWrite方法处理自定义逻辑
-      * 继承ApiResponseAdvice处理自定义逻辑时, 自定义处理逻辑的类需要是一个Spring Bean
-    * 如果完全不需要框架自动包装功能, 可通过@NoApiResponse注解标记, 这个注解可以用在类或者方法上, 框架默认会自动包装接口返参
+  * **接口响应包装**
+    * 框架提供了统一的接口响应类`com.solo.framework.web.response.ApiResponse`, 使用者无需自行定义
+    * 编写接口时只需关注需要返回的实体, 框架会自动将其包装作为data属性包装为ApiResponse对象返回
+      * 例如, 前面编写的Controller只返回了UserResponse, 但最终返回的是ApiResponse, UserResponse作为ApiResponse.data
+        ```json
+        {
+            "data": {
+                "balance": 18.85,
+                "createAt": "2024-09-19 22:45:22",
+                "enabled": 1,
+                "id": 1,
+                "userName": "张三"
+            },
+          "message": "请求成功",
+          "resultCode": 0,
+          "timestamp": 1726757122136
+        }
+        ```
+        * `ApiResponse`的属性说明
+          * `resultCode`: 请求响应码
+          * `message`: 请求响应提示信息
+          * `traceId`: 请求Id
+          * `timestamp`: 请求响应时间戳
+          * `exceptionClass`: 请求异常的类路径
+          * `exceptionMessage`: 请求异常原始信息(适用于非自定义异常的场景)
+    * 自定义配置
+      * 如何扩展接口响应字段? 
+        * 继承`com.solo.framework.web.response.ApiResponse`类, 增加自己的属性定义
+      * 如何扩展接口响应逻辑?
+        * 继承`com.solo.framework.web.handle.ApiResponseAdvice`类, 并重写beforeBodyWrite方法处理自定义逻辑
+      * 部分接口需要屏蔽框架自动包装功能?
+        * 通过`@NoApiResponse`注解标记, 这个注解可以用在类或者方法上, 框架默认会自动包装接口返参
 
-  * **全局异常处理**
-    * 框架默认对异常做了全局统一处理,这些异常分为两类
-      * 通用异常: 例如404、400等, 建议让框架自行处理, 框架会将其包装为ApiResponse对象, 并提供了完善的信息和友好的提示, 调用者无需关心
-        * 框架对通用类型的异常类型进行了统一定义, 它们被定义在com.solo.framework.web.enums.IErrorCodeEnums类中, 可以直接使用
-          ```java
-          SUCCESS(0, "请求成功"),
-          ERROR(-1, "服务器错误, 请联系运维人员处理"),
-          ERROR_REQUEST_REPEAT(-2, "服务器繁忙, 请稍后重试"),
-          ERROR_REQUEST_URI_INVALID(-3, "请求地址无效"),
-          ERROR_REQUEST_PARAMS_INVALID(-4, "请求参数缺失或无效"),
-          ERROR_REQUEST_PARAMS_FORMAT_INVALID(-5, "请求参数格式不符合要求"),
-          ERROR_REQUEST_REQUEST_FAIL(-6, "请求远程调用失败"),
-          ERROR_REQUEST_NETWORK_CONNECTION_FAIL(-7, "请求网络连接失败"),;
-          ```
-      * 业务异常: 这类异常需要使用者自行定义, 框架会自动捕获并将其包装为ApiResponse对象后返回
-        * 自行定义异常枚举类, 然后抛出IErrorException即可
-          ```java
-          throw new IErrorException(CustomErrorCodeEnums.ERROR);
-          ```
-        * 如果希望抛出异常时直接传入异常枚举类, 那么就让自定义的异常枚举类实现IErrorCode接口
-          ```java
-          /**
-            * 业务异常枚举统一接口
-            */
-            public interface IErrorCode {
-
-             /**
-              * 获取请求响应码
-              * @return 请求响应码
+    * **全局异常处理**
+      * 框架默认对异常做了全局统一处理, 这些异常分为两类
+        * 通用异常: 例如404、400等, 建议让框架自行处理, 框架会将其包装为ApiResponse对象, 并提供了完善的信息和友好的提示, 调用者无需关心
+          * 框架默认处理的异常类型, 默认会打印一条错误日志, 下面列出了每种异常对应的错误日志
+            * `HttpMessageNotReadableException`: `WARN`
+            * `MethodArgumentNotValidException`: `WARN`
+            * `IErrorHttpNoFoundException`: `WARN`
+            * `IErrorException`: `WARN`
+            * `RuntimeException`: `ERROR`
+            * `Exception`: `ERROR`
+          * 框架对通用类型的异常类型进行了统一定义, 它们被定义在`com.solo.framework.web.enums.IErrorCodeEnums`类中, 可以直接使用
+            ```java
+            SUCCESS(0, "请求成功"),
+            ERROR(-1, "服务器错误, 请联系运维人员处理"),
+            ERROR_REQUEST_REPEAT(-2, "服务器繁忙, 请稍后重试"),
+            ERROR_REQUEST_URI_INVALID(-3, "请求地址无效"),
+            ERROR_REQUEST_PARAMS_INVALID(-4, "请求参数缺失或无效"),
+            ERROR_REQUEST_PARAMS_FORMAT_INVALID(-5, "请求参数格式不符合要求"),
+            ERROR_REQUEST_REQUEST_FAIL(-6, "请求远程调用失败"),
+            ERROR_REQUEST_NETWORK_CONNECTION_FAIL(-7, "请求网络连接失败"),;
+            ```
+        * 业务异常: 这类异常需要使用者自行定义, 框架会自动捕获并将其包装为ApiResponse对象后返回
+          * 自行定义异常枚举类, 然后抛出IErrorException即可
+            * CustomErrorCodeEnums是使用方自定义的异常枚举类, 需要实现`com.solo.framework.web.enums.IErrorCode`接口 
+            ```java
+            /**
+              * 业务异常枚举统一接口
               */
-              Integer getResultCode();
+              public interface IErrorCode {
 
-             /**
-              * 获取请求响应信息
-              * @return 请求响应信息
-              */
-              String getMessage();
+               /**
+                * 获取请求响应码
+                * @return 请求响应码
+                */
+                Integer getResultCode();
 
+               /**
+                * 获取请求响应信息
+                * @return 请求响应信息
+                */
+                String getMessage();
+
+            }
+            ```
+            ```java
+            throw new IErrorException(CustomErrorCodeEnums.ERROR);
+            ```
+      * 自定义配置
+        * 如何扩展自定义的异常捕获处理?
+          * 继承ApiResponseAdvice类, 增加自己的异常捕获逻辑
+        * 如何自定义框架默认处理异常的日志级别?
+          * 继承ApiResponseAdvice类, 构造方法中增加异常及对于的日志级别
+          ```java
+          @Slf4j
+          @RestControllerAdvice
+          public class TestApiResponseAdvice extends ApiResponseAdvice {
+  
+              public TestApiResponseAdvice() {
+                  putExceptionLogLevel(RuntimeException.class, SoloFrameworkLoggingEnum.INFO);
+              }
+  
           }
           ```
-
-
 
 
 

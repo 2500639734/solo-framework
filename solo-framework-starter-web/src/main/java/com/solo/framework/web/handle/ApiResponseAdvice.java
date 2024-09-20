@@ -1,6 +1,9 @@
 package com.solo.framework.web.handle;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson2.JSON;
+import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
+import com.solo.framework.common.util.LogUtil;
 import com.solo.framework.web.annotation.NoApiResponse;
 import com.solo.framework.web.enums.IErrorCodeEnums;
 import com.solo.framework.web.exception.IErrorException;
@@ -9,6 +12,7 @@ import com.solo.framework.web.response.ApiResponse;
 import com.solo.framework.web.response.ApiResponseAbstract;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +21,9 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.lang.NonNull;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
@@ -29,7 +36,7 @@ import java.util.Objects;
  */
 @Slf4j
 @RestControllerAdvice
-public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
+public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, IApiResponseAdvice {
 
     private static final String REQUEST_NOT_FOUND_STATUS= "status";
     private static final String REQUEST_NOT_FOUND_ERROR = "error";
@@ -75,7 +82,25 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
     }
 
     /**
-     * 请求接口参数错误异常捕获
+     * 请求参数值校验错误异常捕获
+     *
+     * @param ex 请求接口参数值校验异常
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        StringBuilder errorMessage = new StringBuilder();
+        for (ObjectError error : ex.getBindingResult().getAllErrors()) {
+            String fieldName = ((FieldError) error).getField();
+            String message = error.getDefaultMessage();
+            errorMessage.append(fieldName).append("-").append(message).append("; ");
+        }
+
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getResultCode(), errorMessage.toString(), HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 请求接口参数格式错误异常捕获
      * @param ex 请求接口参数错误异常
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
@@ -95,11 +120,31 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
     }
 
     /**
+     * 系统级别错误异常捕获
+     * @param ex 运行时错误异常
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
+     */
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIErrorException(RuntimeException ex) {
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * 系统级别错误异常捕获
+     * @param ex 未捕获的其它所有错误异常,兜底处理
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleIErrorException(Exception ex) {
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
      * 判断类或方法上是否标注了${@link com.solo.framework.web.annotation.NoApiResponse}注解
      * @param methodParameter 方法参数
      * @return 是否标注了注解
      */
-    private boolean hasNoApiResponseAnnotation(MethodParameter methodParameter) {
+    protected boolean hasNoApiResponseAnnotation(MethodParameter methodParameter) {
         if (methodParameter.hasMethodAnnotation(NoApiResponse.class)) {
             return true;
         }
@@ -113,7 +158,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
      * @param methodParameter 方法参数
      * @return 是否是Swagger请求
      */
-    private boolean hasSwaggerRequest(@NonNull MethodParameter methodParameter) {
+    protected boolean hasSwaggerRequest(@NonNull MethodParameter methodParameter) {
         return methodParameter.getContainingClass().getName().contains("springfox")
                 || methodParameter.getContainingClass().getName().contains("knife4j");
     }
@@ -122,7 +167,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
      * 检查请求响应是否是404
      * @param body 请求响应体
      */
-    private static void checkRequestHttp404(Object body) {
+    protected void checkRequestHttp404(Object body) {
         if (body instanceof Map) {
             Map<?, ?> responseMap = (Map<?, ?>) body;
             Object statusObj = responseMap.get(REQUEST_NOT_FOUND_STATUS);
@@ -141,31 +186,46 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object> {
      * @param ex 捕获到的异常类型
      * @return 请求响应体
      */
-    private static ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(IErrorException ex) {
-        ApiResponse<Void> apiErrorResponse = ApiResponse.error(ex.getErrorCode(), ex.getErrorMessage(), null, ex);
-        printExceptionLog(ex);
-        return new ResponseEntity<>(apiErrorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(IErrorException ex) {
+        return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
      * 构建请求响应
      * @param ex 捕获到的异常类型
      * @param iErrorCodeEnum 错误枚举
-     * @param httpStatus 请求响应码
+     * @param httpStatus 请求http响应码
      * @return 请求响应体
      */
-    private static ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Exception ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
-        ApiResponse<Void> apiErrorResponse = ApiResponse.error(iErrorCodeEnum, null, ex);
+    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Exception ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
+        return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getResultCode(), iErrorCodeEnum.getMessage(), httpStatus);
+    }
+
+    /**
+     * 构建请求响应
+     * @param ex 捕获到的异常类型
+     * @param resultCode 请求响应码
+     * @param message 请求响应提示信息
+     * @param httpStatus 请求http响应码
+     * @return 请求响应体
+     */
+    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Exception ex, Integer resultCode, String message, HttpStatus httpStatus) {
+        ApiResponse<Void> apiErrorResponse = ApiResponse.error(resultCode, message, null, ex);
         printExceptionLog(ex);
         return new ResponseEntity<>(apiErrorResponse, httpStatus);
     }
 
     /**
-     * 打印异常日志 TODO：动态级别
+     * 打印异常日志
      * @param ex 捕获到的异常类型
      */
-    private static void printExceptionLog(Exception ex) {
-        log.error("服务异常,请查看错误日志", ex);
+    protected void printExceptionLog(Exception ex) {
+        LogUtil.log(ObjectUtil.defaultIfNull(getExceptionLogLevel(ex), SoloFrameworkLoggingEnum.ERROR), "服务异常,请查看错误日志", ex);
+    }
+
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE;
     }
 
 }
