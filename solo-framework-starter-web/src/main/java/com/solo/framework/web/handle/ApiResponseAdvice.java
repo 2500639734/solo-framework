@@ -121,21 +121,11 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
 
     /**
      * 系统级别错误异常捕获
-     * @param ex 运行时错误异常
-     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIErrorException(RuntimeException ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    /**
-     * 系统级别错误异常捕获
      * @param ex 未捕获的其它所有错误异常,兜底处理
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleIErrorException(Exception ex) {
+    @ExceptionHandler(Throwable.class)
+    public ResponseEntity<ApiResponse<Void>> handleIErrorException(Throwable ex) {
         return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -197,7 +187,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param httpStatus 请求http响应码
      * @return 请求响应体
      */
-    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Exception ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
+    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Throwable ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
         return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getResultCode(), iErrorCodeEnum.getMessage(), httpStatus);
     }
 
@@ -209,7 +199,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param httpStatus 请求http响应码
      * @return 请求响应体
      */
-    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Exception ex, Integer resultCode, String message, HttpStatus httpStatus) {
+    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Throwable ex, Integer resultCode, String message, HttpStatus httpStatus) {
         ApiResponse<Void> apiErrorResponse = ApiResponse.error(resultCode, message, null, ex);
         printExceptionLog(ex);
         return new ResponseEntity<>(apiErrorResponse, httpStatus);
@@ -219,7 +209,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * 打印异常日志
      * @param ex 捕获到的异常类型
      */
-    protected void printExceptionLog(Exception ex) {
+    protected void printExceptionLog(Throwable ex) {
         LogUtil.log(ObjectUtil.defaultIfNull(getExceptionLogLevel(ex), SoloFrameworkLoggingEnum.ERROR), "服务异常,请查看错误日志", ex);
     }
 
