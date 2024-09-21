@@ -24,10 +24,13 @@ import org.springframework.lang.NonNull;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -76,13 +79,13 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param ex 请求接口地址错误异常
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(IErrorHttpNoFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.NOT_FOUND);
     }
 
     /**
-     * 请求参数值校验错误异常捕获
+     * 请求参数值校验错误异常捕获(Object类型参数校验)
      *
      * @param ex 请求接口参数值校验异常
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
@@ -98,13 +101,39 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
     }
 
     /**
-     * 请求接口参数格式错误异常捕获
+     * 请求参数值校验错误异常捕获(List类型参数校验)
+     *
+     * @param ex 请求接口参数值校验异常
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(ConstraintViolationException ex) {
+        ConstraintViolation<?> error = ex.getConstraintViolations().stream().iterator().next();
+        String errorMessage = IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
+                ": [" +
+                error.getPropertyPath() + "-" + error.getMessage() +
+                "]";
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 请求接口参数格式错误异常捕获(如@RequestParam参数未传)
      * @param ex 请求接口参数错误异常
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
-    @ExceptionHandler(IErrorHttpNoFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.NOT_FOUND);
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFoundException(MissingServletRequestParameterException ex) {
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * 请求接口参数格式错误异常捕获(兜底, 如JSON Object格式传参为List格式)
+     * @param ex 请求接口参数错误异常
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
     }
 
     /**

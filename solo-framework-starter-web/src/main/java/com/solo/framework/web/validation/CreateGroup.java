@@ -1,4 +1,4 @@
-package com.solo.framework.core.validation;
+package com.solo.framework.web.validation;
 
 /**
  * 定义复杂场景分组校验的接口(框架默认提供了CreateGroup和UpdateGroup)
