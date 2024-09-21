@@ -1,23 +1,27 @@
 # Solo Framework
 
-Solo Framework 是一款用于快速构建Spring Boot应用程序的框架,开箱即用,简单方便
+Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简化了大部分web开发的常用配置, 并针对常用中间件提供了开箱即用的统一解决方案, 使用者可以更专注投入于业务逻辑
 
 ## 框架模块说明
 * `solo-framework-starter-common`: 默认引入一些开发常用的工具类库以及框架提供的一些工具类
   * hutool
 * `solo-framework-starter-core`: 框架核心部分, 一般无需关注 
   * 框架配置文件加载
-  * 框架基本信息加载
+  * 框架运行时上下文信息加载
+  * 提供统一事件驱动支持（待规划）
 * `solo-framework-starter-core`: WEB开发常用配置支持
   * 集成Swagger UI, Knife4j, 提供接口文档支持
   * 集成FastJson2, 并提供自定义序列化策略支持
   * 统一定义接口返参实体, 返参结果自动包装
   * 统一定义全局异常捕获, 处理通用异常信息
-  * 接口参数校验支持，统一处理校验错误（待规划）
+  * 接口参数校验支持，统一处理校验错误
   * 全局链路追踪日志traceId支持（待规划）
+* `solo-framework-starter-mts`: 简化配置, 扩展一些mybatis-plus的收费功能
+* `solo-framework-starter-rocketmq`: 简化配置, 提供开箱即用的统一事务消息、顺序消息、消息幂等支持
+* `solo-framework-starter-redis`: 简化配置, 提供开箱即用的缓存、分布式锁、防重注解支持
 * 其它模块待后续规划
 
-## solo-framework-starter-web
+## solo-framework-starter-web (web开发模块)
 
 ### 使用说明
 1. 引入框架依赖
@@ -164,7 +168,7 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
       
   * **接口响应包装**
     * 框架提供了统一的接口响应类`com.solo.framework.web.response.ApiResponse`, 使用者无需自行定义
-    * 编写接口时只需关注需要返回的实体, 框架会自动将其包装作为data属性包装为ApiResponse对象返回
+    * 编写接口时只需关注需要返回的实体, 框架会自动将其包装作为data属性, 然后将其包装为ApiResponse对象返回
       * 例如, 前面编写的Controller只返回了UserResponse, 但最终返回的是ApiResponse, UserResponse作为ApiResponse.data
         ```json
         {
@@ -217,8 +221,7 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
             ERROR_REQUEST_NETWORK_CONNECTION_FAIL(-7, "请求网络连接失败"),;
             ```
         * 业务异常: 这类异常需要使用者自行定义, 框架会自动捕获并将其包装为ApiResponse对象后返回
-          * 自行定义异常枚举类, 然后抛出IErrorException即可
-            * CustomErrorCodeEnums是使用方自定义的异常枚举类, 需要实现`com.solo.framework.web.enums.IErrorCode`接口 
+          * 自行定义异常枚举类, 然后抛出IErrorException即可, 需要实现`com.solo.framework.web.enums.IErrorCode`接口
             ```java
             /**
               * 业务异常枚举统一接口
