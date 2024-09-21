@@ -29,13 +29,13 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     }
 
     @Override
-    protected ApiResponseAbstract<T> successResponse(@NonNull int resultCode, @NonNull String message, T data) {
-        return ApiResponse.success(resultCode, message, data);
+    protected ApiResponseAbstract<T> successResponse(@NonNull int code, @NonNull String message, T data) {
+        return ApiResponse.success(code, message, data);
     }
 
     @Override
-    protected ApiResponseAbstract<T> errorResponse(@NonNull int resultCode, @NonNull String message, Throwable exception) {
-        return ApiResponse.error(resultCode, message, exception);
+    protected ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, Throwable exception) {
+        return ApiResponse.error(code, message, exception);
     }
 
     @Override
@@ -49,13 +49,13 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     }
 
     @Override
-    protected ApiResponseAbstract<T> errorResponse(@NonNull int resultCode, @NonNull String message, String traceId, Throwable exception) {
-        return ApiResponse.error(resultCode, message, traceId, exception);
+    protected ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, String traceId, Throwable exception) {
+        return ApiResponse.error(code, message, traceId, exception);
     }
 
     @Override
-    protected ApiResponseAbstract<T> buildResponse(@NonNull int resultCode, @NonNull String message, T data, String traceId, Throwable exception) {
-        return ApiResponse.buildApiResponse(resultCode, message, data, traceId, exception);
+    protected ApiResponseAbstract<T> buildResponse(@NonNull int code, @NonNull String message, T data, String traceId, Throwable exception) {
+        return ApiResponse.buildApiResponse(code, message, data, traceId, exception);
     }
 
     public static <T> ApiResponse<T> success(T data) {
@@ -63,15 +63,15 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     }
 
     public static <T> ApiResponse<T> success(@NonNull IErrorCode iErrorCode, T data) {
-        return success(iErrorCode.getResultCode(), iErrorCode.getMessage(), data);
+        return success(iErrorCode.getCode(), iErrorCode.getMessage(), data);
     }
 
-    public static <T> ApiResponse<T> success(@NonNull int resultCode, @NonNull String message, T data) {
-        return buildApiResponse(resultCode, message,  data, null, null);
+    public static <T> ApiResponse<T> success(@NonNull int code, @NonNull String message, T data) {
+        return buildApiResponse(code, message,  data, null, null);
     }
 
-    public static <T> ApiResponse<T> error(@NonNull int resultCode, @NonNull String message, Throwable exception) {
-        return error(resultCode, message, null, exception);
+    public static <T> ApiResponse<T> error(@NonNull int code, @NonNull String message, Throwable exception) {
+        return error(code, message, null, exception);
     }
 
     public static <T> ApiResponse<T> error(@NonNull IErrorCode iErrorCode, Throwable exception) {
@@ -79,20 +79,20 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     }
 
     public static <T> ApiResponse<T> error(@NonNull IErrorCode iErrorCode, String traceId, Throwable exception) {
-        return error(iErrorCode.getResultCode(), iErrorCode.getMessage(), traceId, exception);
+        return error(iErrorCode.getCode(), iErrorCode.getMessage(), traceId, exception);
     }
 
-    public static <T> ApiResponse<T> error(@NonNull int resultCode, @NonNull String message, String traceId, Throwable exception) {
-        return buildApiResponse(resultCode, message, traceId, exception);
+    public static <T> ApiResponse<T> error(@NonNull int code, @NonNull String message, String traceId, Throwable exception) {
+        return buildApiResponse(code, message, traceId, exception);
     }
 
-    public static <T> ApiResponse<T> buildApiResponse(@NonNull int resultCode, @NonNull String message, String traceId, Throwable exception) {
-        return ApiResponse.buildApiResponse(resultCode, message, null, traceId, exception);
+    public static <T> ApiResponse<T> buildApiResponse(@NonNull int code, @NonNull String message, String traceId, Throwable exception) {
+        return ApiResponse.buildApiResponse(code, message, null, traceId, exception);
     }
 
-    private static <T> ApiResponse<T> buildApiResponse(@NonNull int resultCode, @NonNull String message, T data, String traceId, Throwable exception) {
+    private static <T> ApiResponse<T> buildApiResponse(@NonNull int code, @NonNull String message, T data, String traceId, Throwable exception) {
         ApiResponse<T> response = new ApiResponse<>();
-        response.setResultCode(resultCode);
+        response.setCode(code);
         response.setMessage(message);
         response.setData(data);
         response.setTraceId(traceId);

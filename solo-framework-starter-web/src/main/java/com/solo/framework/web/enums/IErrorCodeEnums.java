@@ -30,7 +30,7 @@ public enum IErrorCodeEnums implements IErrorCode {
     /**
      * 错误码：0-成功，其它失败
      */
-    private final Integer resultCode;
+    private final Integer code;
 
     /**
      * 提示信息
@@ -39,18 +39,18 @@ public enum IErrorCodeEnums implements IErrorCode {
 
     /**
      * 根据请求响应码 获取请求响应枚举
-     * @param resultCode 请求响应码
+     * @param code 请求响应码
      * @return 请求响应枚举
      */
-    public static IErrorCodeEnums getByResultCode(int resultCode){
+    public static IErrorCodeEnums getByCode(int code){
         return Arrays.stream(IErrorCodeEnums.values())
-                .filter(IErrorCodeEnums -> IErrorCodeEnums.resultCode.equals(resultCode))
+                .filter(IErrorCodeEnums -> IErrorCodeEnums.code.equals(code))
                 .findFirst().orElse(null);
     }
 
     @Override
-    public Integer getResultCode() {
-        return resultCode;
+    public Integer getCode() {
+        return code;
     }
 
     @Override

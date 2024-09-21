@@ -9,7 +9,7 @@ public interface IErrorCode {
      * 获取请求响应码
      * @return 请求响应码
      */
-    Integer getResultCode();
+    Integer getCode();
 
     /**
      * 获取请求响应信息

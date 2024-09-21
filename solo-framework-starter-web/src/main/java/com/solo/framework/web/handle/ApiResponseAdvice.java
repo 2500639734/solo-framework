@@ -89,14 +89,12 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        StringBuilder errorMessage = new StringBuilder();
-        for (ObjectError error : ex.getBindingResult().getAllErrors()) {
-            String fieldName = ((FieldError) error).getField();
-            String message = error.getDefaultMessage();
-            errorMessage.append(fieldName).append("-").append(message).append("; ");
-        }
-
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getResultCode(), errorMessage.toString(), HttpStatus.BAD_REQUEST);
+        ObjectError error = ex.getBindingResult().getAllErrors().get(0);
+        String errorMessage = IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
+                ":[" +
+                ((FieldError) error).getField() + "-" + error.getDefaultMessage() +
+                "]";
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -165,7 +163,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
             Object pathObj = responseMap.get(REQUEST_NOT_FOUND_PATH);
             if (Integer.valueOf(HttpStatus.NOT_FOUND.value()).equals(statusObj) && REQUEST_NOT_FOUND_MESSAGE.equals(errorObj)) {
                 // 404请求将其转为IErrorHttpNoFoundException异常返回
-                throw new IErrorHttpNoFoundException(IErrorCodeEnums.ERROR_REQUEST_URI_INVALID.getResultCode(),
+                throw new IErrorHttpNoFoundException(IErrorCodeEnums.ERROR_REQUEST_URI_INVALID.getCode(),
                         Objects.toString(errorObj, "") + ": " + Objects.toString(pathObj, ""));
             }
         }
@@ -188,7 +186,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return 请求响应体
      */
     protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Throwable ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
-        return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getResultCode(), iErrorCodeEnum.getMessage(), httpStatus);
+        return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getCode(), iErrorCodeEnum.getMessage(), httpStatus);
     }
 
     /**

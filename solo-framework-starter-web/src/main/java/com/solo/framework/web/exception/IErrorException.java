@@ -33,7 +33,7 @@ public class IErrorException extends RuntimeException {
     }
 
     public IErrorException(IErrorCode iErrorCode) {
-        this(iErrorCode.getResultCode(), iErrorCode.getMessage());
+        this(iErrorCode.getCode(), iErrorCode.getMessage());
     }
 
     public IErrorException(IErrorCode iErrorCode, Throwable cause) {
@@ -46,7 +46,7 @@ public class IErrorException extends RuntimeException {
     }
 
     public IErrorException(IErrorCode iErrorCode, Throwable cause, Object ... msgArgs) {
-        this(iErrorCode.getResultCode(), MessageFormat.format(iErrorCode.getMessage(), msgArgs), cause);
+        this(iErrorCode.getCode(), MessageFormat.format(iErrorCode.getMessage(), msgArgs), cause);
     }
 
     private void initCauseIfNoneNull(Throwable cause) {

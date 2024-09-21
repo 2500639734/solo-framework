@@ -176,12 +176,12 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
                 "userName": "张三"
             },
           "message": "请求成功",
-          "resultCode": 0,
+          "code": 0,
           "timestamp": 1726757122136
         }
         ```
         * `ApiResponse`的属性说明
-          * `resultCode`: 请求响应码
+          * `code`: 请求响应码
           * `message`: 请求响应提示信息
           * `traceId`: 请求Id
           * `timestamp`: 请求响应时间戳
@@ -229,7 +229,7 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
                 * 获取请求响应码
                 * @return 请求响应码
                 */
-                Integer getResultCode();
+                Integer getCode();
 
                /**
                 * 获取请求响应信息

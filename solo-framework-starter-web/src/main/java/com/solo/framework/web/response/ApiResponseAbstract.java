@@ -12,7 +12,7 @@ public abstract class ApiResponseAbstract<T> {
     /**
      * 请求响应码
      */
-    private int resultCode;
+    private int code;
 
     /**
      * 请求响应提示信息
@@ -36,7 +36,10 @@ public abstract class ApiResponseAbstract<T> {
 
     /**
      * 请求异常原始信息(适用于非自定义异常的场景)
+     * - 禁止序列化,通过日志查看详细错误信息
      */
+    @JSONField(serialize = false, deserialize = false)
+    @JsonIgnore
     private String exceptionMessage;
 
     /**
@@ -55,16 +58,16 @@ public abstract class ApiResponseAbstract<T> {
 
     protected abstract ApiResponseAbstract<T> successResponse(@NonNull IErrorCode iErrorCode, T data);
 
-    protected abstract ApiResponseAbstract<T> successResponse(@NonNull int resultCode, @NonNull String message, T data);
+    protected abstract ApiResponseAbstract<T> successResponse(@NonNull int code, @NonNull String message, T data);
 
-    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int resultCode, @NonNull String message, Throwable exception);
+    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, Throwable exception);
 
     protected abstract ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, Throwable exception);
 
     protected abstract ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, String traceId, Throwable exception);
 
-    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int resultCode, @NonNull String message, String traceId, Throwable exception);
+    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, String traceId, Throwable exception);
 
-    protected abstract ApiResponseAbstract<T> buildResponse(@NonNull int resultCode, @NonNull String message, T data, String traceId, Throwable exception);
+    protected abstract ApiResponseAbstract<T> buildResponse(@NonNull int code, @NonNull String message, T data, String traceId, Throwable exception);
 
 }
