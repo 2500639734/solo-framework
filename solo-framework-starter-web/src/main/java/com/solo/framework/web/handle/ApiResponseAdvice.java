@@ -86,7 +86,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(IErrorHttpNoFoundException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
+    public ResponseEntity<ApiResponseAbstract<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
         return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.NOT_FOUND);
     }
 
@@ -97,7 +97,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponseAbstract<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         ObjectError error = ex.getBindingResult().getAllErrors().get(0);
         String errorMessage = IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
                 ":[" +
@@ -113,7 +113,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(ConstraintViolationException ex) {
+    public ResponseEntity<ApiResponseAbstract<Void>> handleValidationExceptions(ConstraintViolationException ex) {
         ConstraintViolation<?> error = ex.getConstraintViolations().stream().iterator().next();
         String errorMessage = IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
                 ": [" +
@@ -128,7 +128,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ApiResponse<Void>> handleNoHandlerFoundException(MissingServletRequestParameterException ex) {
+    public ResponseEntity<ApiResponseAbstract<Void>> handleNoHandlerFoundException(MissingServletRequestParameterException ex) {
         return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
     }
 
@@ -138,7 +138,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
+    public ResponseEntity<ApiResponseAbstract<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
     }
 
@@ -148,7 +148,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(IErrorException.class)
-    public ResponseEntity<ApiResponse<Void>> handleIErrorException(IErrorException ex) {
+    public ResponseEntity<ApiResponseAbstract<Void>> handleIErrorException(IErrorException ex) {
         return buildApiResponseResponseEntity(ex);
     }
 
@@ -158,7 +158,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(Throwable.class)
-    public ResponseEntity<ApiResponse<Void>> handleIErrorException(Throwable ex) {
+    public ResponseEntity<ApiResponseAbstract<Void>> handleIErrorException(Throwable ex) {
         return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -209,7 +209,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param ex 捕获到的异常类型
      * @return 请求响应体
      */
-    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(IErrorException ex) {
+    protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(IErrorException ex) {
         return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -220,7 +220,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param httpStatus 请求http响应码
      * @return 请求响应体
      */
-    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Throwable ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
+    protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
         return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getCode(), iErrorCodeEnum.getMessage(), httpStatus);
     }
 
@@ -232,8 +232,8 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param httpStatus 请求http响应码
      * @return 请求响应体
      */
-    protected ResponseEntity<ApiResponse<Void>> buildApiResponseResponseEntity(Throwable ex, Integer resultCode, String message, HttpStatus httpStatus) {
-        ApiResponse<Void> apiErrorResponse = ApiResponse.error(resultCode, message, null, ex);
+    protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, Integer resultCode, String message, HttpStatus httpStatus) {
+        ApiResponseAbstract<Void> apiErrorResponse = ApiResponse.error(resultCode, message, null, ex);
         printExceptionLog(ex);
         return new ResponseEntity<>(apiErrorResponse, httpStatus);
     }
