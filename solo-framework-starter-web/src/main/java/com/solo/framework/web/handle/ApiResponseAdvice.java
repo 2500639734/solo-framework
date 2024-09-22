@@ -233,7 +233,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return 请求响应体
      */
     protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, Integer resultCode, String message, HttpStatus httpStatus) {
-        ApiResponseAbstract<Void> apiErrorResponse = ApiResponse.error(resultCode, message, null, ex);
+        ApiResponseAbstract<Void> apiErrorResponse = ApiResponse.error(resultCode, message, ex);
         printExceptionLog(ex);
         return new ResponseEntity<>(apiErrorResponse, httpStatus);
     }
@@ -241,8 +241,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
     /**
      * 打印异常日志
      * @param ex 捕获到的异常类型
-     */
-    protected void printExceptionLog(Throwable ex) {
+     */    protected void printExceptionLog(Throwable ex) {
         LogUtil.log(ObjectUtil.defaultIfNull(getExceptionLogLevel(ex), SoloFrameworkLoggingEnum.ERROR), "服务异常,请查看错误日志", ex);
     }
 

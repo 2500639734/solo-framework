@@ -64,10 +64,6 @@ public abstract class ApiResponseAbstract<T> {
 
     protected abstract ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, Throwable exception);
 
-    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, String traceId, Throwable exception);
-
-    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, String traceId, Throwable exception);
-
-    protected abstract ApiResponseAbstract<T> buildResponse(@NonNull int code, @NonNull String message, T data, String traceId, Throwable exception);
+    protected abstract ApiResponseAbstract<T> buildResponse(@NonNull int code, @NonNull String message, T data, Throwable exception);
 
 }
