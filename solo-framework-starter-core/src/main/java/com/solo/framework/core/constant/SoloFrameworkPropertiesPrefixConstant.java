@@ -16,4 +16,7 @@ public class SoloFrameworkPropertiesPrefixConstant {
     /******************************************* fastjson prefix start *******************************************/
     public static final String SOLO_FRAMEWORK_FAST_JSON_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".fastjson";
 
+    /******************************************* response prefix start *******************************************/
+    public static final String SOLO_FRAMEWORK_RESPONSE_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".response";
+
 }

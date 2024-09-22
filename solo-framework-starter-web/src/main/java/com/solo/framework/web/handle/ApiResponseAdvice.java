@@ -4,13 +4,16 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson2.JSON;
 import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
 import com.solo.framework.common.util.LogUtil;
+import com.solo.framework.core.properties.web.response.SoloFrameworkWebResponseProperties;
 import com.solo.framework.web.annotation.NoApiResponse;
 import com.solo.framework.web.enums.IErrorCodeEnums;
 import com.solo.framework.web.exception.IErrorException;
 import com.solo.framework.web.exception.IErrorHttpNoFoundException;
 import com.solo.framework.web.response.ApiResponse;
 import com.solo.framework.web.response.ApiResponseAbstract;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpStatus;
@@ -41,6 +44,9 @@ import java.util.Objects;
 @RestControllerAdvice
 public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, IApiResponseAdvice {
 
+    @Setter(onMethod_ = {@Autowired})
+    private SoloFrameworkWebResponseProperties soloFrameworkWebResponseProperties;
+
     private static final String REQUEST_NOT_FOUND_STATUS= "status";
     private static final String REQUEST_NOT_FOUND_ERROR = "error";
     private static final String REQUEST_NOT_FOUND_PATH = "path";
@@ -48,7 +54,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
 
     @Override
     public boolean supports(@NonNull MethodParameter methodParameter, @NonNull Class<? extends HttpMessageConverter<?>> converterType) {
-        return ! hasNoApiResponseAnnotation(methodParameter) && ! hasSwaggerRequest(methodParameter);
+        return soloFrameworkWebResponseProperties.isEnabled() && ! hasNoApiResponseAnnotation(methodParameter) && ! hasSwaggerRequest(methodParameter);
     }
 
     @Override
