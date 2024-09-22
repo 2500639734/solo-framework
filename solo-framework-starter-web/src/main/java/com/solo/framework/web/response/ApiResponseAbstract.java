@@ -35,7 +35,7 @@ public abstract class ApiResponseAbstract<T> {
     private String exceptionClass;
 
     /**
-     * 请求异常原始信息(适用于非自定义异常的场景)
+     * 请求异常信息(适用于非自定义异常的场景)
      * - 禁止序列化,通过日志查看详细错误信息
      */
     @JSONField(serialize = false, deserialize = false)
@@ -48,7 +48,7 @@ public abstract class ApiResponseAbstract<T> {
     private long timestamp;
 
     /**
-     * 接口异常信息,禁止序列化
+     * 请求异常详细信息(包含堆栈信息),禁止序列化
      */
     @JSONField(serialize = false, deserialize = false)
     @JsonIgnore
