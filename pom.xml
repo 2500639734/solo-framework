@@ -48,11 +48,13 @@
                 <version>${solo-framework.version}</version>
             </dependency>
 
+            <!-- TODO: 存在安全漏洞，延后处理 start -->
             <dependency>
                 <groupId>com.solo.framework</groupId>
                 <artifactId>solo-framework-starter-web</artifactId>
                 <version>${solo-framework.version}</version>
             </dependency>
+            <!-- TODO: 存在安全漏洞，延后处理 end -->
 
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -62,13 +64,12 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- TODO: 存在安全漏洞，延后处理 start -->
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-boot-starter</artifactId>
                 <version>${springfox.version}</version>
             </dependency>
-            <!-- TODO: 存在安全漏洞，延后处理 end -->
+
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
                 <artifactId>knife4j-spring-boot-starter</artifactId>
