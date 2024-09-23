@@ -26,6 +26,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -88,6 +89,16 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
     @ExceptionHandler(IErrorHttpNoFoundException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
         return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * 请求接口地址错误异常捕获
+     * @param ex 请求接口地址错误异常
+     * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
+     */
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ApiResponseAbstract<Void>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_WAY_INVALID, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     /**
