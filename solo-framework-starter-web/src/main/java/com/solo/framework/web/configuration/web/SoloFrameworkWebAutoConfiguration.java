@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.support.spring.http.converter.FastJsonHttpMessageCo
 import com.solo.framework.core.properties.web.SoloFrameworkWebProperties;
 import com.solo.framework.core.traceId.ISoloFrameworkTraceId;
 import com.solo.framework.web.filter.SoloFrameworkTraceIdFilter;
-import com.solo.framework.web.handle.ApiResponseAdvice;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -50,12 +49,6 @@ public class SoloFrameworkWebAutoConfiguration implements WebMvcConfigurer {
     @ConditionalOnMissingBean(ISoloFrameworkTraceId.class)
     public ISoloFrameworkTraceId soloFrameworkTraceIdFilter() {
         return new SoloFrameworkTraceIdFilter();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean(ApiResponseAdvice.class)
-    public ApiResponseAdvice apiResponseAdvice() {
-        return new ApiResponseAdvice();
     }
 
     @Override
