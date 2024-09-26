@@ -209,7 +209,7 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
             * `IErrorException`: `WARN`
             * `RuntimeException`: `ERROR`
             * `Exception`: `ERROR`
-          * 框架对通用类型的异常类型进行了统一定义, 它们被定义在`com.solo.framework.web.enums.IErrorCodeEnums`类中, 可以直接使用
+          * 框架对通用类型的异常类型进行了统一定义, 它们被定义在`com.solo.framework.web.enums.ErrorCodeEnums类中, 可以直接使用
             ```java
             SUCCESS(0, "请求成功"),
             ERROR(-1, "服务器错误, 请联系运维人员处理"),

@@ -6,7 +6,8 @@ import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
 import com.solo.framework.common.util.LogUtil;
 import com.solo.framework.core.properties.web.response.SoloFrameworkWebResponseProperties;
 import com.solo.framework.web.annotation.NoApiResponse;
-import com.solo.framework.web.enums.IErrorCodeEnums;
+import com.solo.framework.web.context.SoloFrameworkWebContextHolder;
+import com.solo.framework.web.enums.ErrorCodeEnums;
 import com.solo.framework.web.exception.IErrorException;
 import com.solo.framework.web.exception.IErrorHttpNoFoundException;
 import com.solo.framework.web.response.ApiResponse;
@@ -88,7 +89,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(IErrorHttpNoFoundException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.NOT_FOUND);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -98,7 +99,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_WAY_INVALID, HttpStatus.METHOD_NOT_ALLOWED);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_WAY_INVALID, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
     /**
@@ -110,11 +111,11 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         ObjectError error = ex.getBindingResult().getAllErrors().get(0);
-        String errorMessage = IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
+        String errorMessage = ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
                 ":[" +
-                ((FieldError) error).getField() + "-" + error.getDefaultMessage() +
+                ((FieldError) error).getField() + "-" + SoloFrameworkWebContextHolder.getInternationMessage(error.getDefaultMessage()) +
                 "]";
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -126,11 +127,11 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleValidationExceptions(ConstraintViolationException ex) {
         ConstraintViolation<?> error = ex.getConstraintViolations().stream().iterator().next();
-        String errorMessage = IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
+        String errorMessage = ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
                 ": [" +
-                error.getPropertyPath() + "-" + error.getMessage() +
+                error.getPropertyPath() + "-" + SoloFrameworkWebContextHolder.getInternationMessage(error.getMessage()) +
                 "]";
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -140,7 +141,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleNoHandlerFoundException(MissingServletRequestParameterException ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -150,7 +151,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -170,7 +171,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleIErrorException(Throwable ex) {
-        return buildApiResponseResponseEntity(ex, IErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -208,9 +209,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
             Object errorObj = responseMap.get(REQUEST_NOT_FOUND_ERROR);
             Object pathObj = responseMap.get(REQUEST_NOT_FOUND_PATH);
             if (Integer.valueOf(HttpStatus.NOT_FOUND.value()).equals(statusObj) && REQUEST_NOT_FOUND_MESSAGE.equals(errorObj)) {
-                // 404请求将其转为IErrorHttpNoFoundException异常返回
-                throw new IErrorHttpNoFoundException(IErrorCodeEnums.ERROR_REQUEST_URI_INVALID.getCode(),
-                        Objects.toString(errorObj, "") + ": " + Objects.toString(pathObj, ""));
+                throw new IErrorHttpNoFoundException(ErrorCodeEnums.ERROR_REQUEST_URI_INVALID.getCode(), Objects.toString(errorObj, "") + ": " + Objects.toString(pathObj, ""));
             }
         }
     }
@@ -221,7 +220,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return 请求响应体
      */
     protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(IErrorException ex) {
-        return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(),ex.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -231,8 +230,8 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param httpStatus 请求http响应码
      * @return 请求响应体
      */
-    protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, IErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
-        return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getCode(), iErrorCodeEnum.getMessage(), httpStatus);
+    protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, ErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
+        return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getCode(), iErrorCodeEnum.getMessageCode(), iErrorCodeEnum.getMessage(), httpStatus);
     }
 
     /**
@@ -250,9 +249,24 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
     }
 
     /**
+     * 构建请求响应
+     * @param ex 捕获到的异常类型
+     * @param resultCode 请求响应码
+     * @param message 请求响应提示信息
+     * @param httpStatus 请求http响应码
+     * @return 请求响应体
+     */
+    protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, Integer resultCode, String messageCode, String message, HttpStatus httpStatus) {
+        ApiResponseAbstract<Void> apiErrorResponse = ApiResponse.error(resultCode, messageCode, message, null, ex);
+        printExceptionLog(ex);
+        return new ResponseEntity<>(apiErrorResponse, httpStatus);
+    }
+
+    /**
      * 打印异常日志
      * @param ex 捕获到的异常类型
-     */    protected void printExceptionLog(Throwable ex) {
+     */
+    protected void printExceptionLog(Throwable ex) {
         LogUtil.log(ObjectUtil.defaultIfNull(getExceptionLogLevel(ex), SoloFrameworkLoggingEnum.ERROR), "服务异常,请查看错误日志", ex);
     }
 

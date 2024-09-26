@@ -2,6 +2,7 @@ package com.solo.framework.core.env;
 
 import cn.hutool.core.collection.CollUtil;
 import com.solo.framework.core.context.SoloFrameworkContextHolder;
+import com.solo.framework.core.properties.SoloFrameworkProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.context.annotation.ComponentScan;
@@ -22,6 +23,11 @@ public class SoloFrameworkRuntimeInfo {
     public static final String VERSION = "solo.framework.version";
 
     /**
+     * 框架配置信息
+     */
+    private SoloFrameworkProperties soloFrameworkProperties;
+
+    /**
      * 应用名称
      */
     private String applicationName;
@@ -30,11 +36,6 @@ public class SoloFrameworkRuntimeInfo {
      * 框架版本
      */
     private String version;
-
-    /**
-     * 项目配置{@link org.springframework.context.annotation.ComponentScan}的包
-     */
-    private Set<String> componentScanPackages;
 
     public static Set<String> getComponentScanPackages() {
         if (Objects.isNull(SoloFrameworkContextHolder.getApplicationContext())) {

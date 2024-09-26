@@ -2,6 +2,7 @@ package com.solo.framework.core.properties.web;
 
 import com.solo.framework.core.constant.SoloFrameworkPropertiesPrefixConstant;
 import com.solo.framework.core.properties.web.fastjson.SoloFrameworkWebFastJsonProperties;
+import com.solo.framework.core.properties.web.internation.SoloFrameworkWebInternationProperties;
 import com.solo.framework.core.properties.web.response.SoloFrameworkWebResponseProperties;
 import com.solo.framework.core.properties.web.swagger.SoloFrameworkWebSwaggerProperties;
 import lombok.Data;
@@ -29,5 +30,11 @@ public class SoloFrameworkWebProperties {
      */
     @NestedConfigurationProperty
     private SoloFrameworkWebResponseProperties response = new SoloFrameworkWebResponseProperties();
+
+    /**
+     * 框架internation相关配置
+     */
+    @NestedConfigurationProperty
+    private SoloFrameworkWebInternationProperties internation = new SoloFrameworkWebInternationProperties();
 
 }
