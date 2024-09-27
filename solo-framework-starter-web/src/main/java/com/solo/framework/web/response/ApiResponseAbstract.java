@@ -60,16 +60,12 @@ public abstract class ApiResponseAbstract<T> {
 
     protected abstract ApiResponseAbstract<T> successResponse(@NonNull int code, @NonNull String message, T data);
 
-    protected abstract ApiResponseAbstract<T> successResponse(@NonNull int code, String messageCode, @NonNull String message, T data);
-
     protected abstract ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, Throwable exception);
 
     protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, Throwable exception);
 
-    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int code, String messageCode, @NonNull String message, Throwable exception);
+    protected abstract ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, T data, Throwable exception);
 
     protected abstract ApiResponseAbstract<T> buildResponse(@NonNull int code, @NonNull String message, T data, Throwable exception);
-
-    protected abstract ApiResponseAbstract<T> buildResponse(@NonNull int code, String messageCode, @NonNull String message, T data, Throwable exception);
 
 }

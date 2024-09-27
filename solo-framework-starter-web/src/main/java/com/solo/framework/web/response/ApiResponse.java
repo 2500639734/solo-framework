@@ -1,10 +1,10 @@
 package com.solo.framework.web.response;
 
 import com.solo.framework.core.context.SoloFrameworkTraceIdContextHolder;
-import com.solo.framework.web.context.SoloFrameworkWebContextHolder;
-import com.solo.framework.web.enums.IErrorCode;
 import com.solo.framework.web.enums.ErrorCodeEnums;
+import com.solo.framework.web.enums.IErrorCode;
 import com.solo.framework.web.exception.IErrorException;
+import com.solo.framework.web.util.MessageUtil;
 import io.swagger.annotations.ApiModel;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
@@ -36,11 +36,6 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     }
 
     @Override
-    protected ApiResponseAbstract<T> successResponse(@NonNull int code, String messageCode, @NonNull String message, T data) {
-        return ApiResponse.success(code, messageCode, message, data);
-    }
-
-    @Override
     protected ApiResponseAbstract<T> errorResponse(@NonNull IErrorCode iErrorCode, Throwable exception) {
         return ApiResponse.error(iErrorCode, exception);
     }
@@ -51,18 +46,13 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     }
 
     @Override
-    protected ApiResponseAbstract<T> errorResponse(@NonNull int code, String messageCode, @NonNull String message, Throwable exception) {
-        return ApiResponse.error(code, messageCode, message, null, exception);
+    protected ApiResponseAbstract<T> errorResponse(@NonNull int code, @NonNull String message, T data, Throwable exception) {
+        return ApiResponse.error(code, message, data, exception);
     }
 
     @Override
     protected ApiResponseAbstract<T> buildResponse(@NonNull int code, @NonNull String message, T data, Throwable exception) {
-        return ApiResponse.buildApiResponse(code, message, message, data, exception);
-    }
-
-    @Override
-    protected ApiResponseAbstract<T> buildResponse(@NonNull int code, String messageCode, @NonNull String message, T data, Throwable exception) {
-        return ApiResponse.buildApiResponse(code, messageCode, message, data, exception);
+        return ApiResponse.buildApiResponse(code, message, data, exception);
     }
 
     public static <T> ApiResponse<T> success(T data) {
@@ -70,33 +60,29 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     }
 
     public static <T> ApiResponse<T> success(@NonNull IErrorCode iErrorCode, T data) {
-        return success(iErrorCode.getCode(), iErrorCode.getMessageCode(), iErrorCode.getMessage(), data);
+        return success(iErrorCode.getCode(), iErrorCode.getMessage(), data);
     }
 
     public static <T> ApiResponse<T> success(@NonNull int code, @NonNull String message, T data) {
-        return success(code, message, message, data);
-    }
-
-    public static <T> ApiResponse<T> success(@NonNull int code, String messageCode, @NonNull String message, T data) {
-        return buildApiResponse(code, messageCode, message, data, null);
+        return buildApiResponse(code, message, data, null);
     }
 
     public static <T> ApiResponse<T> error(@NonNull IErrorCode iErrorCode, Throwable exception) {
-        return error(iErrorCode.getCode(), iErrorCode.getMessageCode(), iErrorCode.getMessage(), null, exception);
+        return error(iErrorCode.getCode(), iErrorCode.getMessage(), exception);
     }
 
     public static <T> ApiResponse<T> error(@NonNull int code, @NonNull String message, Throwable exception) {
-        return error(code, message, message, null, exception);
+        return error(code, message, null, exception);
     }
 
-    public static <T> ApiResponse<T> error(@NonNull int code, String messageCode, @NonNull String message, T data, Throwable exception) {
-        return buildApiResponse(code, messageCode, message, data, exception);
+    public static <T> ApiResponse<T> error(@NonNull int code, @NonNull String message, T data, Throwable exception) {
+        return buildApiResponse(code, message, data, exception);
     }
 
-    private static <T> ApiResponse<T> buildApiResponse(@NonNull int code, String messageCode, @NonNull String message, T data, Throwable exception) {
+    private static <T> ApiResponse<T> buildApiResponse(@NonNull int code, @NonNull String message, T data, Throwable exception) {
         ApiResponse<T> response = new ApiResponse<>();
         response.setCode(code);
-        response.setMessage(SoloFrameworkWebContextHolder.getInternationMessage(messageCode, message));
+        response.setMessage(MessageUtil.getInternationMessage(message, message));
         response.setData(data);
         response.setTraceId(SoloFrameworkTraceIdContextHolder.getTraceId());
         response.setTimestamp(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());

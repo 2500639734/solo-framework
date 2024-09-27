@@ -3,6 +3,7 @@ package com.solo.framework.common.util;
 import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.MessageFormat;
 import java.util.Objects;
 
 @Slf4j
@@ -16,89 +17,81 @@ public class LogUtil {
         logMessage(loggingEnum, message);
     }
 
-    public static void log(SoloFrameworkLoggingEnum loggingEnum, String message, Object... args) {
-        logMessage(loggingEnum, message, args);
-    }
-
     public static void log(String message, SoloFrameworkLoggingEnum loggingEnum, Object... args) {
         logMessage(loggingEnum, message, args);
-    }
-
-    public static void log(SoloFrameworkLoggingEnum loggingEnum, String message, Throwable ex) {
-        logMessage(loggingEnum, message, ex);
     }
 
     public static void log(String message, SoloFrameworkLoggingEnum loggingEnum, Throwable ex) {
         logMessage(loggingEnum, message, ex);
     }
 
-    private static void logMessage(SoloFrameworkLoggingEnum loggingEnum, String message) {
+    private static void logMessage(SoloFrameworkLoggingEnum loggingEnum, String message, Object... args) {
         switch (loggingEnum) {
+            case TRACE:
+                if (log.isTraceEnabled()) {
+                    log.trace(message, args);
+                }
+                break;
             case DEBUG:
                 if (log.isDebugEnabled()) {
-                    log.debug(message);
+                    log.debug(message, args);
                 }
                 break;
             case INFO:
                 if (log.isInfoEnabled()) {
-                    log.info(message);
+                    log.info(message, args);
                 }
                 break;
             case WARN:
                 if (log.isWarnEnabled()) {
-                    log.warn(message);
+                    log.warn(message, args);
                 }
                 break;
             case ERROR:
                 if (log.isErrorEnabled()) {
-                    log.error(message);
+                    log.error(message, args);
                 }
                 break;
+
             default:
-                log.info(message);
+                log.info(message, args);
         }
     }
 
-    private static void logMessage(SoloFrameworkLoggingEnum loggingEnum, String message, Object... args) {
+    private static void logMessage(SoloFrameworkLoggingEnum loggingEnum, String message, Throwable ex, Object... args) {
+        if (Objects.nonNull(args)) {
+            message = MessageFormat.format(message, args);
+        }
+
         switch (loggingEnum) {
+            case TRACE:
+                if (log.isTraceEnabled()) {
+                    log.trace(message, ex);
+                }
+                break;
             case DEBUG:
                 if (log.isDebugEnabled()) {
-                    if (Objects.isNull(args)) {
-                        log.debug(message);
-                    } else {
-                        log.debug(message, args);
-                    }
+                    log.debug(message, ex);
                 }
                 break;
             case INFO:
                 if (log.isInfoEnabled()) {
-                    if (Objects.isNull(args)) {
-                        log.info(message);
-                    } else {
-                        log.info(message, args);
-                    }
+                    log.info(message, ex);
+                    log.info(message, new Object(), ex);
                 }
                 break;
             case WARN:
                 if (log.isWarnEnabled()) {
-                    if (Objects.isNull(args)) {
-                        log.warn(message);
-                    } else {
-                        log.warn(message, args);
-                    }
+                    log.warn(message, ex);
                 }
                 break;
             case ERROR:
                 if (log.isErrorEnabled()) {
-                    if (Objects.isNull(args)) {
-                        log.error(message);
-                    } else {
-                        log.error(message, args);
-                    }
+                    log.error(message, ex);
                 }
                 break;
             default:
-                log.info(message, args);
+                log.info(message, ex);
         }
     }
 

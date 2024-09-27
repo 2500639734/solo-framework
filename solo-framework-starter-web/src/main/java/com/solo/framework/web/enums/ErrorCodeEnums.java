@@ -18,15 +18,15 @@ public enum ErrorCodeEnums implements IErrorCode {
     /**
      * 系统级别异常定义
      */
-    SUCCESS                                                 (0, "请求成功", "success.message"),
-    ERROR                                                   (-1, "服务器错误, 请联系运维人员处理", "error.message"),
-    ERROR_REQUEST_REPEAT                                    (-2, "服务器繁忙, 请稍后重试", "error.request.repeat.message"),
-    ERROR_REQUEST_URI_INVALID                               (-3, "请求地址无效", "error.uri.invalid.message"),
-    ERROR_REQUEST_WAY_INVALID                               (-4, "请求方式错误", "error.way.invalid.message"),
-    ERROR_REQUEST_PARAMS_INVALID                            (-5, "请求参数缺失或无效", "request.error.params.invalid.message"),
-    ERROR_REQUEST_PARAMS_FORMAT_INVALID                     (-6, "请求参数格式不符合要求", "request.error.params.format.invalid.message"),
-    ERROR_REQUEST_REQUEST_FAIL                              (-7, "请求远程调用失败", "request.error.request.fail.message"),
-    ERROR_REQUEST_NETWORK_CONNECTION_FAIL                   (-8, "请求网络连接失败", "request.error.network.connection.fail.message"),;
+    SUCCESS                                                 (0, "success.message"),
+    ERROR                                                   (-1, "error.message"),
+    ERROR_REQUEST_REPEAT                                    (-2, "error.request.repeat.message"),
+    ERROR_REQUEST_URI_INVALID                               (-3, "error.uri.invalid.message"),
+    ERROR_REQUEST_WAY_INVALID                               (-4, "error.way.invalid.message"),
+    ERROR_REQUEST_PARAMS_INVALID                            (-5, "request.error.params.invalid.message"),
+    ERROR_REQUEST_PARAMS_FORMAT_INVALID                     (-6, "request.error.params.format.invalid.message"),
+    ERROR_REQUEST_REQUEST_FAIL                              (-7, "request.error.request.fail.message"),
+    ERROR_REQUEST_NETWORK_CONNECTION_FAIL                   (-8, "request.error.network.connection.fail.message"),;
 
     /**
      * 错误码：0-成功，其它失败
@@ -37,11 +37,6 @@ public enum ErrorCodeEnums implements IErrorCode {
      * 提示信息
      */
     private final String message;
-
-    /**
-     * 国际化key
-     */
-    private final String messageCode;
 
     /**
      * 根据请求响应码 获取请求响应枚举

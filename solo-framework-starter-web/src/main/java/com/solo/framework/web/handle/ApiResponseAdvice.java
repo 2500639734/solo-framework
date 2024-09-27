@@ -1,17 +1,21 @@
 package com.solo.framework.web.handle;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson2.JSON;
 import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
+import com.solo.framework.common.function.NoArgSupplier;
 import com.solo.framework.common.util.LogUtil;
+import com.solo.framework.common.util.ReflectionUtils;
+import com.solo.framework.core.env.SoloFrameworkRuntimeInfo;
 import com.solo.framework.core.properties.web.response.SoloFrameworkWebResponseProperties;
 import com.solo.framework.web.annotation.NoApiResponse;
-import com.solo.framework.web.context.SoloFrameworkWebContextHolder;
 import com.solo.framework.web.enums.ErrorCodeEnums;
 import com.solo.framework.web.exception.IErrorException;
 import com.solo.framework.web.exception.IErrorHttpNoFoundException;
 import com.solo.framework.web.response.ApiResponse;
 import com.solo.framework.web.response.ApiResponseAbstract;
+import com.solo.framework.web.util.MessageUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,34 +108,31 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
 
     /**
      * 请求参数值校验错误异常捕获(Object类型参数校验)
-     *
      * @param ex 请求接口参数值校验异常
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         ObjectError error = ex.getBindingResult().getAllErrors().get(0);
-        String errorMessage = ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
-                ":[" +
-                ((FieldError) error).getField() + "-" + SoloFrameworkWebContextHolder.getInternationMessage(error.getDefaultMessage()) +
-                "]";
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
+        FieldError fieldError = (FieldError) ex.getBindingResult().getAllErrors().get(0);
+        // 获取字段注解属性kv
+        Map<String, Object> attributes = getErrorFiledAnnotationAttributesMap(() -> ReflectionUtils.getFieldAnnotationsAttributes(Objects.requireNonNull(ex.getBindingResult().getTarget()).getClass(), fieldError.getField()));
+
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), handlerErrorMessage(error.getDefaultMessage(), fieldError.getField(), attributes), HttpStatus.BAD_REQUEST);
     }
 
     /**
      * 请求参数值校验错误异常捕获(List类型参数校验)
-     *
      * @param ex 请求接口参数值校验异常
      * @return {@link com.solo.framework.web.response.ApiResponseAbstract<Void>}
      */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleValidationExceptions(ConstraintViolationException ex) {
         ConstraintViolation<?> error = ex.getConstraintViolations().stream().iterator().next();
-        String errorMessage = ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() +
-                ": [" +
-                error.getPropertyPath() + "-" + SoloFrameworkWebContextHolder.getInternationMessage(error.getMessage()) +
-                "]";
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), errorMessage, HttpStatus.BAD_REQUEST);
+        // 获取字段注解属性kv
+        Map<String, Object> attributes = getErrorFiledAnnotationAttributesMap(() -> error.getConstraintDescriptor().getAttributes());
+
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), handlerErrorMessage(error.getMessage(), error.getPropertyPath().toString(), attributes), HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -220,7 +221,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return 请求响应体
      */
     protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(IErrorException ex) {
-        return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(),ex.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -231,7 +232,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return 请求响应体
      */
     protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, ErrorCodeEnums iErrorCodeEnum, HttpStatus httpStatus) {
-        return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getCode(), iErrorCodeEnum.getMessageCode(), iErrorCodeEnum.getMessage(), httpStatus);
+        return buildApiResponseResponseEntity(ex, iErrorCodeEnum.getCode(), iErrorCodeEnum.getMessage(), httpStatus);
     }
 
     /**
@@ -249,25 +250,38 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
     }
 
     /**
-     * 构建请求响应
-     * @param ex 捕获到的异常类型
-     * @param resultCode 请求响应码
-     * @param message 请求响应提示信息
-     * @param httpStatus 请求http响应码
-     * @return 请求响应体
-     */
-    protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(Throwable ex, Integer resultCode, String messageCode, String message, HttpStatus httpStatus) {
-        ApiResponseAbstract<Void> apiErrorResponse = ApiResponse.error(resultCode, messageCode, message, null, ex);
-        printExceptionLog(ex);
-        return new ResponseEntity<>(apiErrorResponse, httpStatus);
-    }
-
-    /**
      * 打印异常日志
      * @param ex 捕获到的异常类型
      */
     protected void printExceptionLog(Throwable ex) {
-        LogUtil.log(ObjectUtil.defaultIfNull(getExceptionLogLevel(ex), SoloFrameworkLoggingEnum.ERROR), "服务异常,请查看错误日志", ex);
+        LogUtil.log("服务异常,请查看错误日志", ObjectUtil.defaultIfNull(getExceptionLogLevel(ex), SoloFrameworkLoggingEnum.ERROR), ex);
+    }
+
+    /**
+     * 获取校验错误字段注解属性Map
+     * @param func 自定义无参消费型接口
+     * @return 校验错误字段注解属性Map(k-属性名称,v-属性值)
+     */
+    private static Map<String, Object> getErrorFiledAnnotationAttributesMap(NoArgSupplier<Map<String, Object>> func) {
+        return SoloFrameworkRuntimeInfo.INSTANCE.getSoloFrameworkProperties().getWeb().getInternation().isEnabled() ? func.get() : MapUtil.newHashMap();
+    }
+
+    /**
+     * 处理校验错误信息
+     * @param errorMessage 校验错误信息
+     * @param fieldName 校验错误字段
+     * @param attributes 校验错误字段注解属性Map(k-属性名称,v-属性值)
+     * @return 处理后的校验错误信息
+     */
+    private static String handlerErrorMessage(String errorMessage, String fieldName, Map<String, Object> attributes) {
+        // 是否开启了国际化
+        if (SoloFrameworkRuntimeInfo.INSTANCE.getSoloFrameworkProperties().getWeb().getInternation().isEnabled()) {
+            // 消息内容国际化处理, 并且替换占位符
+            String message = MessageUtil.getInternationPlaceholdersMessage(errorMessage, attributes);
+            return ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() + ":[" + fieldName + "-" + message + "]";
+        } else {
+            return errorMessage;
+        }
     }
 
     @Override

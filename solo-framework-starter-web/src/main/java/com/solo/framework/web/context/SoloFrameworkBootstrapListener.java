@@ -55,7 +55,7 @@ public class SoloFrameworkBootstrapListener implements ApplicationListener<Appli
             }
         } else {
             if (log.isDebugEnabled() || log.isInfoEnabled()) {
-                log.info("Swagger UI 未开启, 请检查${solo.framework.web.swagger.enabled}配置(生产环境忽略)!");
+                log.info("Swagger UI 未开启, 请检查${solo.framework.web.swagger.enabled}配置(生产环境建议关闭)!");
             }
         }
     }
