@@ -4,6 +4,7 @@ import com.solo.framework.core.env.SoloFrameworkRuntimeInfo;
 import com.solo.framework.core.properties.SoloFrameworkProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
@@ -15,15 +16,13 @@ public class SoloFrameworkCoreBootstrapListener implements ApplicationListener<A
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationReadyEvent) {
-            Environment environment = SoloFrameworkContextHolder.getApplicationContext().getEnvironment();
+            ApplicationContext applicationContext = SoloFrameworkContextHolder.getApplicationContext();
+            Environment environment = applicationContext.getEnvironment();
             SoloFrameworkRuntimeInfo.INSTANCE
                     .setApplicationName(environment.getProperty(SoloFrameworkRuntimeInfo.APPLICATION_NAME))
+                    // .setBasePackages(SoloFrameworkApplicationUtil.getApplicationScanBasePackages(applicationContext))
                     .setSoloFrameworkProperties(SoloFrameworkContextHolder.getBean(SoloFrameworkProperties.class))
                     .setVersion(environment.getProperty(SoloFrameworkRuntimeInfo.VERSION));
-
-            /*if (log.isDebugEnabled()) {
-                log.info("=======================>>> SoloFrameworkRuntimeInfo = {}", SoloFrameworkRuntimeInfo.INSTANCE);
-            }*/
         }
     }
 

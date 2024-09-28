@@ -12,7 +12,7 @@ import java.util.Set;
 
 
 @Data
-@ConfigurationProperties(prefix = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_FAST_JSON_PREFIX)
+@ConfigurationProperties(prefix = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_WEB_FAST_JSON_PREFIX)
 public class SoloFrameworkWebFastJsonProperties {
 
     /**

@@ -15,7 +15,7 @@ import com.solo.framework.web.exception.IErrorException;
 import com.solo.framework.web.exception.IErrorHttpNoFoundException;
 import com.solo.framework.web.response.ApiResponse;
 import com.solo.framework.web.response.ApiResponseAbstract;
-import com.solo.framework.web.util.MessageUtil;
+import com.solo.framework.web.util.SoloFrameworkMessageUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -277,7 +277,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
         // 是否开启了国际化
         if (SoloFrameworkRuntimeInfo.INSTANCE.getSoloFrameworkProperties().getWeb().getInternation().isEnabled()) {
             // 消息内容国际化处理, 并且替换占位符
-            String message = MessageUtil.getInternationPlaceholdersMessage(errorMessage, attributes);
+            String message = SoloFrameworkMessageUtil.getInternationPlaceholdersMessage(errorMessage, attributes);
             return ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() + ":[" + fieldName + "-" + message + "]";
         } else {
             return errorMessage;

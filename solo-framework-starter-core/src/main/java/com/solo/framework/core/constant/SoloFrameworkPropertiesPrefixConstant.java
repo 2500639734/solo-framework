@@ -16,12 +16,12 @@ public class SoloFrameworkPropertiesPrefixConstant {
     public static final String SOLO_FRAMEWORK_WEB_SWAGGER_CONCAT_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".concat";
 
     /******************************************* web fastjson prefix start *******************************************/
-    public static final String SOLO_FRAMEWORK_FAST_JSON_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".fastjson";
+    public static final String SOLO_FRAMEWORK_WEB_FAST_JSON_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".fastjson";
 
     /******************************************* web response prefix start *******************************************/
-    public static final String SOLO_FRAMEWORK_RESPONSE_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".response";
+    public static final String SOLO_FRAMEWORK_WEB_RESPONSE_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".response";
 
     /******************************************* web internation prefix start *******************************************/
-    public static final String SOLO_FRAMEWORK_INTERNATION_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".internation";
+    public static final String SOLO_FRAMEWORK_WEB_INTERNATION_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".internation";
 
 }

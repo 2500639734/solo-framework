@@ -1,5 +1,7 @@
 org.springframework.context.ApplicationListener=\
     com.solo.framework.web.context.SoloFrameworkBootstrapListener
+org.springframework.boot.env.EnvironmentPostProcessor=\
+    com.solo.framework.web.processor.SoloFrameworkWebPropertyPostProcessor
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
     com.solo.framework.web.configuration.SoloFrameworkAutoConfiguration,\
     com.solo.framework.web.configuration.web.SoloFrameworkWebAutoConfiguration,\

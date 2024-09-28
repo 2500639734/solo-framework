@@ -11,7 +11,7 @@ import java.util.Locale;
 import java.util.Set;
 
 @Data
-@ConfigurationProperties(prefix = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_INTERNATION_PREFIX)
+@ConfigurationProperties(prefix = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_WEB_INTERNATION_PREFIX)
 public class SoloFrameworkWebInternationProperties {
 
     /**

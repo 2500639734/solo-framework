@@ -20,7 +20,7 @@ import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 @Configuration
-@ConditionalOnProperty(name = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_INTERNATION_PREFIX + ".enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_WEB_INTERNATION_PREFIX + ".enabled", havingValue = "true", matchIfMissing = true)
 @AutoConfigureBefore({MessageSourceAutoConfiguration.class, WebMvcAutoConfiguration.class})
 @EnableConfigurationProperties(SoloFrameworkWebInternationProperties.class)
 public class SoloFrameworkWebInternationAutoConfiguration {

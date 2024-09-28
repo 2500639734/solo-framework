@@ -4,7 +4,7 @@ import com.solo.framework.core.context.SoloFrameworkTraceIdContextHolder;
 import com.solo.framework.web.enums.ErrorCodeEnums;
 import com.solo.framework.web.enums.IErrorCode;
 import com.solo.framework.web.exception.IErrorException;
-import com.solo.framework.web.util.MessageUtil;
+import com.solo.framework.web.util.SoloFrameworkMessageUtil;
 import io.swagger.annotations.ApiModel;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
@@ -82,7 +82,7 @@ public class ApiResponse<T> extends ApiResponseAbstract<T> implements Serializab
     private static <T> ApiResponse<T> buildApiResponse(@NonNull int code, @NonNull String message, T data, Throwable exception) {
         ApiResponse<T> response = new ApiResponse<>();
         response.setCode(code);
-        response.setMessage(MessageUtil.getInternationMessage(message, message));
+        response.setMessage(SoloFrameworkMessageUtil.getInternationMessage(message, message));
         response.setData(data);
         response.setTraceId(SoloFrameworkTraceIdContextHolder.getTraceId());
         response.setTimestamp(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());

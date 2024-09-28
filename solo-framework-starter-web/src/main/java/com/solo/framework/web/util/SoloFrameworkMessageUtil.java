@@ -8,9 +8,9 @@ import org.springframework.context.i18n.LocaleContextHolder;
 
 import java.util.Map;
 
-public class MessageUtil {
+public class SoloFrameworkMessageUtil {
 
-    private MessageUtil() {
+    private SoloFrameworkMessageUtil() {
 
     }
 
