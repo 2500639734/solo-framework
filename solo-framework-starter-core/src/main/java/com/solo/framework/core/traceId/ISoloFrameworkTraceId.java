@@ -8,9 +8,4 @@ public interface ISoloFrameworkTraceId {
      */
     String getTraceId();
 
-    /**
-     * 设置请求全局追踪id
-     */
-    void setTraceId();
-
 }

@@ -32,11 +32,6 @@ public class SoloFrameworkTraceIdFilter implements ISoloFrameworkTraceId, Filter
         return SoloFrameworkTraceIdContextHolder.getTraceId();
     }
 
-    @Override
-    public void setTraceId() {
-
-    }
-
     /**
      * 获取traceId, 如果为空就生成一个
      * @param httpRequest http请求对象
