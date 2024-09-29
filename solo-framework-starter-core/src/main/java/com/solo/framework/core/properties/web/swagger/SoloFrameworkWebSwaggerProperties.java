@@ -26,12 +26,12 @@ public class SoloFrameworkWebSwaggerProperties {
     /**
      * swagger文档标题
      */
-    private String title = "Solo Framework API Documentation";
+    private String title = "API Documentation";
 
     /**
      * swagger文档描述
      */
-    private String description = "API documentation for your application";
+    private String description;
 
     /**
      * 条款跳转地址
