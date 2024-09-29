@@ -4,8 +4,6 @@ import com.solo.framework.core.properties.SoloFrameworkProperties;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.Set;
-
 @Data
 @Accessors(chain = true)
 public class SoloFrameworkRuntimeInfo {
@@ -24,11 +22,6 @@ public class SoloFrameworkRuntimeInfo {
      * 应用名称
      */
     private String applicationName;
-
-    /**
-     * 应用默认扫描的包名
-     */
-    private Set<String> basePackages;
 
     /**
      * 框架版本

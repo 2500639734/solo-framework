@@ -10,6 +10,7 @@ import com.solo.framework.core.properties.web.swagger.concat.SoloFrameworkWebSwa
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,6 +28,7 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -56,7 +58,7 @@ public class SoloFrameworkWebSwaggerAutoConfiguration {
     }
 
     private Predicate<RequestHandler> requestHandlerPredicate() {
-        Set<String> scanBasePackages = getApplicationScanBasePackages(SoloFrameworkContextHolder.getApplicationContext());
+        Set<String> scanBasePackages = CollUtil.defaultIfEmpty(soloFrameworkWebSwaggerProperties.getBasePackages(), getApplicationScanBasePackages(SoloFrameworkContextHolder.getApplicationContext()));
         log.info("==============>>>scanBasePackages: {}", scanBasePackages);
         return scanBasePackages
                 .stream()
@@ -86,7 +88,7 @@ public class SoloFrameworkWebSwaggerAutoConfiguration {
             return scanBasePackages;
         }
 
-        // scanBasePackages = getApplicationDefaultScanBasePackages(applicationContext);
+        scanBasePackages = getApplicationDefaultScanBasePackages(applicationContext);
         return scanBasePackages;
     }
 
@@ -96,24 +98,24 @@ public class SoloFrameworkWebSwaggerAutoConfiguration {
                 .map(bean -> AnnotatedElementUtils.findMergedAnnotationAttributes(bean.getClass(), ComponentScan.class, false, true))
                 .filter(Objects::nonNull)
                 .flatMap(attributes -> Stream.of(attributes.getStringArray("basePackages")))
-                // .filter(this::isLocalPackage)
+                .filter(basePackage -> ! basePackage.contains("springfox") && ! basePackage.contains("com.github"))
                 .collect(Collectors.toSet());
     }
 
-    /*private Set<String> getApplicationDefaultScanBasePackages(ApplicationContext applicationContext) {
-        return Arrays.stream(applicationContext.getBeanDefinitionNames()).map(beanDefinitionName -> {
-            Object bean = applicationContext.getBean(beanDefinitionName);
-            Class<?> clazz = bean.getClass();
-            if (clazz.getAnnotation(SpringBootApplication.class) != null) {
-                return clazz.getPackage().getName();
-            }
-
-            return null;
-        }).filter(Objects::nonNull).collect(Collectors.toSet());
-    }*/
-
-    /*private boolean isLocalPackage(String packageName) {
-        return packageName.startsWith(this.getClass().getPackage().getName());
-    }*/
+    private Set<String> getApplicationDefaultScanBasePackages(ApplicationContext applicationContext) {
+        return Arrays.stream(applicationContext.getBeanDefinitionNames())
+                .map(beanDefinitionName -> {
+                    try {
+                        Object bean = applicationContext.getBean(beanDefinitionName);
+                        Class<?> clazz = bean.getClass();
+                        if (clazz.getAnnotation(SpringBootApplication.class) != null) {
+                            return clazz.getPackage().getName();
+                        }
+                    } catch (Exception e) {
+                        // skip 这里仅为了获取默认的scanBasePackages, 可能会报错循环依赖, 不会影响框架启动, 忽略这个异常
+                    }
+                    return null;
+                }).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
 
 }
