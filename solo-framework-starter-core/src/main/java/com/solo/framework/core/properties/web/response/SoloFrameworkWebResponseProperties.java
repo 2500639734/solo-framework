@@ -29,4 +29,10 @@ public class SoloFrameworkWebResponseProperties {
      */
     private int apiErrorCode = HttpStatus.HTTP_OK;
 
+    /**
+     * 是否显示参数校验失败字段:
+     *  true: 接口参数字段校验失败时,错误信息会展示校验失败的字段,开发阶段可以打开用于快速调试
+     */
+    private boolean showValidFailField = false;
+
 }

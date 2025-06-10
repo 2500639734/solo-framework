@@ -2,6 +2,7 @@ package com.solo.framework.web.handle;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
 import com.solo.framework.common.function.NoArgSupplier;
@@ -273,15 +274,23 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @param attributes 校验错误字段注解属性Map(k-属性名称,v-属性值)
      * @return 处理后的校验错误信息
      */
-    private static String handlerErrorMessage(String errorMessage, String fieldName, Map<String, Object> attributes) {
+    private String handlerErrorMessage(String errorMessage, String fieldName, Map<String, Object> attributes) {
         // 是否开启了国际化
         if (SoloFrameworkRuntimeInfo.INSTANCE.getSoloFrameworkProperties().getWeb().getInternation().isEnabled()) {
             // 消息内容国际化处理, 并且替换占位符
             String message = SoloFrameworkMessageUtil.getInternationPlaceholdersMessage(errorMessage, attributes);
-            return ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getMessage() + ":[" + fieldName + "-" + message + "]";
+            return showValidFailField(fieldName) ?
+                    message + ":[" + fieldName + "]" :
+                    message;
         } else {
-            return errorMessage;
+            return showValidFailField(fieldName) ?
+                    errorMessage + ":[" + fieldName + "]" :
+                    errorMessage;
         }
+    }
+
+    private boolean showValidFailField(String fieldName) {
+        return soloFrameworkWebResponseProperties.isShowValidFailField() && StrUtil.isNotBlank(fieldName);
     }
 
     @Override
