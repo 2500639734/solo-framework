@@ -12,6 +12,7 @@
         <module>solo-framework-starter-common</module>
         <module>solo-framework-starter-core</module>
         <module>solo-framework-starter-web</module>
+        <module>solo-framework-starter-mybatis-plus</module>
     </modules>
 
     <properties>
@@ -34,6 +35,8 @@
         <commons.lang3.version>3.17.0</commons.lang3.version>
         <hutool-all.version>5.8.30</hutool-all.version>
         <transmittable-thread-local.version>2.14.5</transmittable-thread-local.version>
+        <mybatis.plus.boot.starter.version>3.5.3</mybatis.plus.boot.starter.version>
+        <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
     </properties>
 
     <dependencyManagement>
@@ -47,6 +50,12 @@
             <dependency>
                 <groupId>com.solo.framework</groupId>
                 <artifactId>solo-framework-starter-core</artifactId>
+                <version>${solo-framework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.solo.framework</groupId>
+                <artifactId>solo-framework-starter-mybatis-plus</artifactId>
                 <version>${solo-framework.version}</version>
             </dependency>
 
@@ -88,7 +97,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <dependency>
@@ -107,6 +115,19 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>transmittable-thread-local</artifactId>
                 <version>${transmittable-thread-local.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis.plus.boot.starter.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.connector.java.version}</version>
+                <scope>runtime</scope>
             </dependency>
 
         </dependencies>
