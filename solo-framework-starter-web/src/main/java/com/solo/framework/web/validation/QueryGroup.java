@@ -5,5 +5,5 @@ package com.solo.framework.web.validation;
  *  {@link org.springframework.validation.annotation.Validated}
  *  如果框架默认的分组类型不能满足需求,可以自定义接口来区分不同的分组
  */
-public interface UpdateGroup {
+public interface QueryGroup {
 }
