@@ -16,7 +16,7 @@ public class SoloFrameworkWebSwaggerProperties {
     /**
      * 是否启用swagger
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * swagger扫描的包名
