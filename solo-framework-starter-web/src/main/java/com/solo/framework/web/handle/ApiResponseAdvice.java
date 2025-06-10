@@ -93,7 +93,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(IErrorHttpNoFoundException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleNoHandlerFoundException(IErrorHttpNoFoundException ex) {
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.NOT_FOUND);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_URI_INVALID, HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiNotFoundCode()));
     }
 
     /**
@@ -103,7 +103,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_WAY_INVALID, HttpStatus.METHOD_NOT_ALLOWED);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_WAY_INVALID, HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiNotFoundCode()));
     }
 
     /**
@@ -118,7 +118,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
         // 获取字段注解属性kv
         Map<String, Object> attributes = getErrorFiledAnnotationAttributesMap(() -> ReflectionUtils.getFieldAnnotationsAttributes(Objects.requireNonNull(ex.getBindingResult().getTarget()).getClass(), fieldError.getField()));
 
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), handlerErrorMessage(error.getDefaultMessage(), fieldError.getField(), attributes), HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), handlerErrorMessage(error.getDefaultMessage(), fieldError.getField(), attributes), HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiBadRequestCode()));
     }
 
     /**
@@ -132,7 +132,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
         // 获取字段注解属性kv
         Map<String, Object> attributes = getErrorFiledAnnotationAttributesMap(() -> error.getConstraintDescriptor().getAttributes());
 
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), handlerErrorMessage(error.getMessage(), error.getPropertyPath().toString(), attributes), HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID.getCode(), handlerErrorMessage(error.getMessage(), error.getPropertyPath().toString(), attributes), HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiBadRequestCode()));
     }
 
     /**
@@ -142,7 +142,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleNoHandlerFoundException(MissingServletRequestParameterException ex) {
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiBadRequestCode()));
     }
 
     /**
@@ -152,7 +152,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.BAD_REQUEST);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR_REQUEST_PARAMS_FORMAT_INVALID, HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiBadRequestCode()));
     }
 
     /**
@@ -172,7 +172,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     @ExceptionHandler(Throwable.class)
     public ResponseEntity<ApiResponseAbstract<Void>> handleIErrorException(Throwable ex) {
-        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildApiResponseResponseEntity(ex, ErrorCodeEnums.ERROR, HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiErrorCode()));
     }
 
     /**
@@ -221,7 +221,7 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      * @return 请求响应体
      */
     protected ResponseEntity<ApiResponseAbstract<Void>> buildApiResponseResponseEntity(IErrorException ex) {
-        return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildApiResponseResponseEntity(ex, ex.getErrorCode(), ex.getErrorMessage(), HttpStatus.valueOf(soloFrameworkWebResponseProperties.getApiErrorCode()));
     }
 
     /**
