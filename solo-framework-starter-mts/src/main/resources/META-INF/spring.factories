@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.solo.framework.mts.configuration.SoloFrameworkMybatisPlusAutoConfiguration

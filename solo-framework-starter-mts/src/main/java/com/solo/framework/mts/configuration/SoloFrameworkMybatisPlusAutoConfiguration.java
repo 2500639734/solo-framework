@@ -1,4 +1,4 @@
-package com.solo.framework.mybatis.plus.configuration;
+package com.solo.framework.mts.configuration;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.autoconfigure.ConfigurationCustomizer;

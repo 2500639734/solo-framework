@@ -12,13 +12,12 @@
         <module>solo-framework-starter-common</module>
         <module>solo-framework-starter-core</module>
         <module>solo-framework-starter-web</module>
-        <module>solo-framework-starter-mybatis-plus</module>
+        <module>solo-framework-starter-mts</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <solo-framework.version>1.0.0</solo-framework.version>
 
         <java.version>1.8</java.version>
         <maven.version>3.6.0</maven.version>
@@ -26,6 +25,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
+
+        <solo-framework.version>1.0.0</solo-framework.version>
         <spring-boot.version>2.5.7</spring-boot.version>
         <springfox.version>3.0.0</springfox.version>
         <knife4j.version>2.0.9</knife4j.version>
@@ -55,7 +56,7 @@
 
             <dependency>
                 <groupId>com.solo.framework</groupId>
-                <artifactId>solo-framework-starter-mybatis-plus</artifactId>
+                <artifactId>solo-framework-starter-mts</artifactId>
                 <version>${solo-framework.version}</version>
             </dependency>
 

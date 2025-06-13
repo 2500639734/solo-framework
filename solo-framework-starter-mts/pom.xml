@@ -10,7 +10,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>solo-framework-starter-mybatis-plus</artifactId>
+    <artifactId>solo-framework-starter-mts</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
@@ -33,7 +33,6 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.33</version>
         </dependency>
 
     </dependencies>
