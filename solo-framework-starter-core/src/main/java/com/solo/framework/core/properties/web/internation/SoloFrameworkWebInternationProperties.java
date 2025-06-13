@@ -25,7 +25,7 @@ public class SoloFrameworkWebInternationProperties {
     private Set<String> baseNames = CollUtil.newHashSet("i18n/solo-framework_messages", "i18n/messages", "i18n/validation/messages");
 
     /**
-     * 国际化资源文件目录(resources)
+     * 国际化资源文件编码
      */
     private Charset encoding = StandardCharsets.UTF_8;
 
