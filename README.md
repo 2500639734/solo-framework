@@ -2,7 +2,8 @@
 
 Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简化了大部分web开发的常用配置, 并针对常用中间件提供了开箱即用的统一解决方案, 使用者可以更专注投入于业务逻辑
 
-## Solo Framework 设计理念
+---
+### Solo Framework 设计理念
 随着云原生架构的普及，Kubernetes 等基础设施已逐步接管了 Spring Cloud 所解决的服务治理与运维问题。在这种背景下，开发者只需基于 Spring Boot，即可快速构建应用，无需再引入繁重的 Spring Cloud 全家桶。
 
 然而，尽管 Spring Boot 大幅简化了开发配置，实际开发中仍有诸多繁琐细节需要手动处理。例如：
@@ -37,7 +38,7 @@ Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简�
 
 通过这种设计，Solo Framework 致力于成为开发者手中轻量、灵活、可控的生产力工具，让“业务即核心”成为真正的实践目标。
 
-
+---
 ## 框架模块说明
 * `solo-framework-starter-common`: 默认引入一些开发常用的工具类库以及框架提供的一些工具类
   * hutool
