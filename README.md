@@ -38,6 +38,8 @@ Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简�
 
 通过这种设计，Solo Framework 致力于成为开发者手中轻量、灵活、可控的生产力工具，让“业务即核心”成为真正的实践目标。
 
+![solo-framework架构图](https://github.com/2500639734/solo-framework/blob/master/solo-framework.png)
+
 ---
 ## 框架模块说明
 * `solo-framework-starter-common`: 默认引入一些开发常用的工具类库以及框架提供的一些工具类
@@ -431,8 +433,8 @@ Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], K
     ```
     * 也可以通过自定义配置进行覆盖，引入框架后必须配置数据源，默认开发是一定需要数据源的，如果必须关闭，则通过排除包的方式将mts模块排除
 
-
-
+* **应用案例**
+  * **基于Solo-Framework + DeepSeek仅需一天就能快速开发小程序所需的后端接口**
 
 
 
