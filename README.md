@@ -309,7 +309,7 @@ mybatis-plus:
             * `IErrorException`: `WARN`
             * `RuntimeException`: `ERROR`
             * `Exception`: `ERROR`
-          * 框架对通用类型的异常类型进行了统一定义, 它们被定义在`com.solo.framework.web.enums.ErrorCodeEnums类中, 可以直接使用
+          * 框架对通用类型的异常类型进行了统一定义, 它们被定义在`com.solo.framework.web.enums.ErrorCodeEnums`类中, 可以直接使用
             ```java
             SUCCESS(0, "请求成功"),
             ERROR(-1, "服务器错误, 请联系运维人员处理"),
@@ -384,7 +384,7 @@ mybatis-plus:
         web:
           # 国际化配置
           internation:
-            # 是否启用国际化（默认true）
+            # 是否启用国际化（默认false）
             enabled: true
             # 国际化资源文件目录（默认i18n/solo-framework_messages、i18n/messages、i18n/validation/messages）
             baseNames: 
