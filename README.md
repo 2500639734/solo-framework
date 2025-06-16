@@ -82,7 +82,7 @@ Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简�
 3. 启动项目, 框架会打印两行日志, 说明启动成功, 可以直接开始业务代码开发了
 ```logcatfilter
 Solo Framework Start Success! applicationName: null(建议配置), serverPort: 8080,  contextPath: /
-Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], Knife4j UI 接口文档地址: [http://localhost:8080//doc.html]
+Swagger UI 接口文档地址: [http://localhost:8080/swagger-ui/index.html], Knife4j UI 接口文档地址: [http://localhost:8080/doc.html]
 ```
 
 ### 模块说明
