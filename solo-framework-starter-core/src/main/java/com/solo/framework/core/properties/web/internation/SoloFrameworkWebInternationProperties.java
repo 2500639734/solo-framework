@@ -17,7 +17,7 @@ public class SoloFrameworkWebInternationProperties {
     /**
      * 是否启用国际化
      */
-    private boolean enabled = true;
+    private boolean enabled = false;
 
     /**
      * 国际化资源文件目录(resources)
