@@ -34,6 +34,7 @@ Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简�
 而 **Solo Framework** 采用标准的 **Spring Boot Starter** 接入方式：
 - **非侵入式**：不强制绑定项目结构
 - **极简整合**：引入依赖即可使用
+- **按需引入**：只需要根据自身需要引入相应模块
 - **专注业务**：开发者只需专注自身业务，框架细节由 Starter 接管
 
 通过这种设计，Solo Framework 致力于成为开发者手中轻量、灵活、可控的生产力工具，让“业务即核心”成为真正的实践目标。
@@ -69,7 +70,7 @@ Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简�
 ## 快速开始
 
 ### 使用说明
-1. 下载源码，本地install
+1. 下载源码，本地install 打包 jar
 2. 业务应用中引入框架依赖
 ```maven
 <dependency>
@@ -78,7 +79,32 @@ Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简�
     <version>${solo-framework-web.version}</version>
 </dependency>
 ```
-3. application.yml中配置数据库连接
+3. 启动项目, 框架会打印两行日志, 说明启动成功, 可以直接开业务代码开发了
+```logcatfilter
+Solo Framework Start Success! applicationName: null(建议配置), serverPort: 8080,  contextPath: /
+Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], Knife4j UI 接口文档地址: [http://localhost:8080//doc.html]
+```
+
+### 模块说明
+1. web开发基础模块，通常一定会引入
+```maven
+<dependency>
+    <groupId>com.solo.framework</groupId>
+    <artifactId>solo-framework-starter-web</artifactId>
+    <version>${solo-framework-web.version}</version>
+</dependency>
+```
+2. mts(mybatis-plus整合模块，按需引入)
+```maven
+<dependency>
+    <groupId>com.solo.framework</groupId>
+    <artifactId>solo-framework-starter-mts</artifactId>
+    <version>${solo-framework-web.version}</version>
+</dependency>
+```
+- 如果引入了mts模块，则需要在application.yml中配置数据库连接信息
+- mybatis-plus的配置可以自定义覆盖
+- 默认配置了Hikari连接池，使用MySQL(8.0.33)驱动，如使用其它版本可以排除掉自行引入
 ```yml
 spring:
    datasource:
@@ -90,12 +116,6 @@ mybatis-plus:
   # Mapper扫描路径,可以省略
   mapper-locations: classpath*:mapper/**/*.xml
   type-aliases-package: ${your_package_name}
-```
-
-4. 启动项目, 框架会打印两行日志, 说明启动成功, 可以直接开业务代码开发了
-```logcatfilter
-Solo Framework Start Success! applicationName: null(建议配置), serverPort: 8080,  contextPath: /
-Swagger UI 接口文档地址: [http://localhost:8080//swagger-ui/index.html], Knife4j UI 接口文档地址: [http://localhost:8080//doc.html]
 ```
 
 ### 功能说明
