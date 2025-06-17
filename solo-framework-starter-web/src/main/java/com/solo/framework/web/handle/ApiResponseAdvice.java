@@ -276,17 +276,16 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
      */
     private String handlerErrorMessage(String errorMessage, String fieldName, Map<String, Object> attributes) {
         // 是否开启了国际化
-        if (SoloFrameworkRuntimeInfo.INSTANCE.getSoloFrameworkProperties().getWeb().getInternation().isEnabled()) {
-            // 消息内容国际化处理, 并且替换占位符
-            String message = SoloFrameworkMessageUtil.getInternationPlaceholdersMessage(errorMessage, attributes);
-            return showValidFailField(fieldName) ?
-                    message + ":[" + fieldName + "]" :
-                    message;
-        } else {
-            return showValidFailField(fieldName) ?
-                    errorMessage + ":[" + fieldName + "]" :
-                    errorMessage;
-        }
+        String message = SoloFrameworkRuntimeInfo.INSTANCE.getSoloFrameworkProperties().getWeb().getInternation().isEnabled() ?
+                // 消息内容国际化处理, 并且替换占位符
+                SoloFrameworkMessageUtil.getInternationPlaceholdersMessage(errorMessage, attributes) :
+                // 未开启国际化, 不做处理
+                errorMessage;
+
+        // 是否需要展示校验错误字段
+        return showValidFailField(fieldName) ?
+                message + ":[" + fieldName + "]" :
+                message;
     }
 
     private boolean showValidFailField(String fieldName) {
