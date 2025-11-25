@@ -40,12 +40,12 @@ Solo Framework 是一款用于快速构建Spring Boot应用程序的框架, 简�
 通过这种设计，Solo Framework 致力于成为开发者手中轻量、灵活、可控的生产力工具，让“业务即核心”成为真正的实践目标。
 
 ### Solo Framework架构图
-![solo-framework架构图](https://github.com/2500639734/solo-framework/blob/master/solo-framework.png)
+![solo-framework架构图](solo-framework.png)
 
 ### Solo Framework应用案例
 基于Solo-Framework + DeepSeek仅需一天就能快速开发小程序所需的后端接口
 
-![轻点记账小程序](https://github.com/2500639734/solo-framework/blob/master/tapBill.png)
+![轻点记账小程序](tapBill.png)
 
 ---
 ## 框架模块说明
