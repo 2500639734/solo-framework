@@ -24,4 +24,7 @@ public class SoloFrameworkPropertiesPrefixConstant {
     /******************************************* web internation prefix start *******************************************/
     public static final String SOLO_FRAMEWORK_WEB_INTERNATION_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".internation";
 
+    /******************************************* web remote prefix start *******************************************/
+    public static final String SOLO_FRAMEWORK_WEB_REMOTE_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".remote";
+
 }

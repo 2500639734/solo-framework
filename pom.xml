@@ -38,6 +38,8 @@
         <transmittable-thread-local.version>2.14.5</transmittable-thread-local.version>
         <mybatis.plus.boot.starter.version>3.5.3</mybatis.plus.boot.starter.version>
         <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
+        <httpclient.version>4.5.14</httpclient.version>
+        <okhttp.version>4.12.0</okhttp.version>
     </properties>
 
     <dependencyManagement>
@@ -129,6 +131,19 @@
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.connector.java.version}</version>
                 <scope>runtime</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>${okhttp.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>${httpclient.version}</version>
+                <optional>true</optional>
             </dependency>
 
         </dependencies>
