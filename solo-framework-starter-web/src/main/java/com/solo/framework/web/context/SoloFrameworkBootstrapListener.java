@@ -50,7 +50,7 @@ public class SoloFrameworkBootstrapListener implements ApplicationListener<Appli
     private static void printSwagger(SoloFrameworkProperties soloFrameworkProperties, Integer serverPort, String contextPath) {
         if (soloFrameworkProperties.getWeb().getSwagger().isEnabled()) {
             if (log.isDebugEnabled() || log.isInfoEnabled()) {
-                log.info("Swagger UI 接口文档地址: [http://localhost:{}{}/swagger-ui/index.html], Knife4j UI 接口文档地址: [http://localhost:{}{}/doc.html]",
+                log.info("Swagger UI 接口文档地址: [http://localhost:{}{}swagger-ui/index.html], Knife4j UI 接口文档地址: [http://localhost:{}{}doc.html]",
                         serverPort, contextPath, serverPort, contextPath);
             }
         } else {

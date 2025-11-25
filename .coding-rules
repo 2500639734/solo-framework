@@ -1,0 +1,988 @@
+# Solo Framework 开发规范
+
+## 一、项目概述
+
+Solo Framework 是基于 Spring Boot 2.5.7 封装的轻量级 Starter 集合，旨在提供开箱即用的快速开发能力。
+
+### 模块结构
+- **solo-framework-starter-common**: 通用工具模块，提供基础工具类和函数式接口
+- **solo-framework-starter-core**: 核心配置模块，提供配置管理和上下文支持
+- **solo-framework-starter-web**: Web开发模块，提供API响应包装、异常处理、Swagger、参数校验等
+- **solo-framework-starter-mts**: 持久层模块，集成 MyBatis Plus 和数据库支持
+
+---
+
+## 二、项目配置规范
+
+### 2.1 Maven 配置规范
+
+#### 父工程配置
+- **GroupId**: `com.solo.framework`
+- **ArtifactId**: `solo-framework-parent`
+- **Version**: 使用变量 `${solo-framework.version}` 统一管理，当前为 `1.0.0`
+- **Packaging**: `pom`
+
+#### 子模块配置
+- 所有子模块必须继承父工程 `solo-framework-parent`
+- 使用 `<relativePath>../pom.xml</relativePath>` 指定父工程路径
+- 子模块 packaging 为 `jar`
+
+#### 依赖管理
+- 使用 `<dependencyManagement>` 统一管理所有依赖版本
+- 依赖版本通过 properties 定义，不在具体依赖中硬编码版本号
+- 子模块引用依赖时不指定版本，继承父工程的版本管理
+
+#### 编码规范
+- **源码编码**: UTF-8 (`project.build.sourceEncoding`)
+- **报告编码**: UTF-8 (`project.reporting.outputEncoding`)
+- **Java版本**: 1.8 (`java.version`, `maven.compiler.source`, `maven.compiler.target`)
+
+#### 插件配置
+必须配置以下插件：
+- `maven-compiler-plugin`: 指定 Java 编译版本为 1.8
+- `maven-source-plugin`: 自动生成源码包（-sources.jar）
+- `maven-resources-plugin`: 处理资源文件过滤，支持 `.factories`, `.properties`, `.yml`, `.txt` 文件
+
+---
+
+## 三、代码编写规范
+
+### 3.1 包命名规范
+
+采用分层包结构，按功能模块划分：
+
+```
+com.solo.framework.{模块名}
+├── annotation/        # 自定义注解
+├── configuration/     # 配置类（Spring Boot 自动配置）
+├── constant/         # 常量定义
+├── context/          # 上下文管理
+├── enums/           # 枚举类
+├── exception/       # 自定义异常
+├── filter/          # 过滤器
+├── function/        # 函数式接口
+├── handle/          # 处理器（如响应增强、异常处理）
+├── properties/      # 配置属性类
+├── response/        # 响应对象
+├── util/            # 工具类
+└── validation/      # 参数校验
+```
+
+### 3.2 类命名规范
+
+#### 配置类
+- 所有自动配置类必须以 `AutoConfiguration` 结尾
+- 示例：`SoloFrameworkWebAutoConfiguration`, `SoloFrameworkMybatisPlusAutoConfiguration`
+
+#### 属性配置类
+- 配置属性类必须以 `Properties` 结尾
+- 示例：`SoloFrameworkProperties`, `SoloFrameworkWebResponseProperties`
+
+#### 常量类
+- 常量类必须以 `Constant` 结尾
+- 示例：`SoloFrameworkPropertiesPrefixConstant`, `SoloFrameworkRequestHeaderConstant`
+
+#### 工具类
+- 工具类必须以 `Util` 或 `Utils` 结尾
+- 示例：`LogUtil`, `ReflectionUtils`
+
+#### 异常类
+- 自定义异常类必须以 `Exception` 结尾
+- 示例：`IErrorException`, `IErrorHttpNoFoundException`
+
+#### 枚举类
+- 枚举类必须以 `Enum` 或 `Enums` 结尾
+- 示例：`ErrorCodeEnums`, `SoloFrameworkLoggingEnum`
+
+#### 接口类
+- 接口类推荐以 `I` 开头（用于区分实现类）
+- 示例：`IErrorCode`, `IErrorException`, `ISoloFrameworkTraceId`
+
+#### 上下文持有类
+- 上下文管理类必须以 `Holder` 结尾
+- 示例：`SoloFrameworkContextHolder`, `SoloFrameworkTraceIdContextHolder`
+
+### 3.3 Lombok 使用规范
+
+#### 必须使用的注解
+- `@Data`: 用于实体类和配置类（生成 getter/setter/toString/equals/hashCode）
+- `@Slf4j`: 用于需要日志输出的类
+- `@Getter`: 单独使用 getter
+- `@Setter`: 单独使用 setter，支持方法注解注入 `@Setter(onMethod_ = {@Autowired})`
+- `@RequiredArgsConstructor`: 为 final 字段生成构造器
+- `@AllArgsConstructor`: 生成全参构造器
+- `@NonNull`: 标记非空参数
+- `@Accessors(chain = true)`: 用于响应对象，支持链式调用
+
+#### 示例
+```java
+@Data
+@ConfigurationProperties(prefix = "solo.framework.web")
+public class SoloFrameworkWebProperties {
+    // 配置字段
+}
+
+@Slf4j
+@RestControllerAdvice
+public class ApiResponseAdvice {
+    @Setter(onMethod_ = {@Autowired})
+    private SoloFrameworkWebResponseProperties properties;
+}
+
+@RequiredArgsConstructor
+@Getter
+@ToString
+public enum ErrorCodeEnums implements IErrorCode {
+    SUCCESS(0, "success.message", "请求成功");
+    
+    private final Integer code;
+    private final String message;
+    private final String defaultMessage;
+}
+```
+
+### 3.4 注释规范
+
+#### Javadoc 注释
+- 所有公共类、接口、枚举必须有类级别 Javadoc
+- 所有 public 方法必须有方法注释
+- 推荐使用简洁的中文注释
+
+```java
+/**
+ * 业务异常枚举统一接口
+ */
+public interface IErrorCode {
+    /**
+     * 获取请求响应码
+     * @return 请求响应码
+     */
+    Integer getCode();
+}
+```
+
+#### 字段注释
+- 配置属性类的字段必须有注释说明用途和默认值
+
+```java
+/**
+ * 是否启用响应包装
+ */
+private boolean enabled = true;
+
+/**
+ * 接口参数错误时, API统一HTTP响应码
+ */
+private int apiBadRequestCode = HttpStatus.HTTP_OK;
+```
+
+#### 代码注释
+- 复杂逻辑必须添加行内注释
+- 关键业务节点使用注释分隔，提升可读性
+
+```java
+// 检查请求是否404
+checkRequestHttp404(body);
+
+// 直接返回ApiResponse类型,不做任何处理
+if (body instanceof ApiResponseAbstract) {
+    return body;
+}
+```
+
+---
+
+## 四、Spring Boot 配置规范
+
+### 4.1 配置前缀规范
+
+所有框架配置必须使用统一前缀：`solo.framework`
+
+#### 配置层级结构
+```
+solo.framework
+├── web                          # Web相关配置
+│   ├── swagger                  # Swagger文档配置
+│   │   └── concat              # Swagger联系人配置
+│   ├── fastjson                # FastJSON序列化配置
+│   ├── response                # API响应配置
+│   └── internation             # 国际化配置
+```
+
+#### 常量定义规范
+- 所有配置前缀必须在 `SoloFrameworkPropertiesPrefixConstant` 中定义
+- 使用常量拼接避免硬编码
+
+```java
+public static final String SOLO_FRAMEWORK_PREFIX = "solo.framework";
+public static final String SOLO_FRAMEWORK_WEB_PREFIX = SOLO_FRAMEWORK_PREFIX + ".web";
+public static final String SOLO_FRAMEWORK_WEB_SWAGGER_PREFIX = SOLO_FRAMEWORK_WEB_PREFIX + ".swagger";
+```
+
+### 4.2 配置类规范
+
+#### ConfigurationProperties 使用
+- 所有配置类必须使用 `@ConfigurationProperties` 注解
+- 必须指定 `prefix` 属性，使用常量类定义的前缀
+- 嵌套配置使用 `@NestedConfigurationProperty` 注解
+- 配置类必须提供合理的默认值
+
+```java
+@Data
+@ConfigurationProperties(prefix = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_WEB_RESPONSE_PREFIX)
+public class SoloFrameworkWebResponseProperties {
+    /**
+     * 是否启用响应包装
+     */
+    private boolean enabled = true;
+    
+    /**
+     * 系统异常时, API统一HTTP响应码
+     */
+    private int apiErrorCode = HttpStatus.HTTP_OK;
+}
+```
+
+#### 自动配置类规范
+- 使用 `@Configuration` 标记配置类
+- 使用 `@EnableConfigurationProperties` 启用对应的配置属性类
+- 使用 `@ConditionalOnMissingBean` 允许用户自定义覆盖
+- 使用 `@AutoConfigureBefore` 或 `@AutoConfigureAfter` 控制配置顺序
+
+```java
+@Configuration
+@EnableConfigurationProperties({SoloFrameworkWebProperties.class})
+public class SoloFrameworkWebAutoConfiguration implements WebMvcConfigurer {
+    @Bean
+    @ConditionalOnMissingBean(CharacterEncodingFilter.class)
+    public CharacterEncodingFilter characterEncodingFilter() {
+        // 配置实现
+    }
+}
+```
+
+### 4.3 Spring Factories 配置
+
+在 `META-INF/spring.factories` 中注册自动配置：
+
+```properties
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.solo.framework.web.configuration.SoloFrameworkAutoConfiguration,\
+    com.solo.framework.web.configuration.web.SoloFrameworkWebAutoConfiguration
+
+org.springframework.context.ApplicationListener=\
+    com.solo.framework.web.context.SoloFrameworkBootstrapListener
+    
+org.springframework.boot.env.EnvironmentPostProcessor=\
+    com.solo.framework.web.processor.SoloFrameworkWebPropertyPostProcessor
+```
+
+---
+
+## 五、API 响应规范
+
+### 5.1 统一响应结构
+
+所有 API 响应必须包装为 `ApiResponse` 对象（除非使用 `@NoApiResponse` 注解排除）
+
+#### 响应字段
+```java
+{
+    "code": 0,              // 响应码：0-成功，其它失败
+    "message": "请求成功",   // 响应提示信息
+    "data": {},             // 响应数据
+    "traceId": "xxxx",      // 链路追踪ID
+    "timestamp": 1234567890, // 响应时间戳
+    "exception": null,       // 异常对象（仅异常时）
+    "exceptionClass": null,  // 异常类名（仅异常时）
+    "exceptionMessage": null // 异常信息（仅异常时）
+}
+```
+
+### 5.2 响应构造规范
+
+#### 成功响应
+```java
+// 直接返回数据，框架自动包装
+return data;
+
+// 手动构造响应
+return ApiResponse.success(data);
+return ApiResponse.success(ErrorCodeEnums.SUCCESS, data);
+return ApiResponse.success(0, "成功", data);
+```
+
+#### 错误响应
+```java
+// 抛出异常，框架自动捕获并包装
+throw new IErrorException(ErrorCodeEnums.ERROR);
+throw new IErrorException(ErrorCodeEnums.ERROR, cause);
+throw new IErrorException(ErrorCodeEnums.ERROR, msgArgs);
+
+// 手动构造错误响应
+return ApiResponse.error(ErrorCodeEnums.ERROR, exception);
+return ApiResponse.error(code, message, exception);
+```
+
+### 5.3 @NoApiResponse 注解
+
+在不需要统一包装的接口上使用：
+
+```java
+@NoApiResponse  // 类级别，该类所有方法不包装
+@RestController
+public class CustomController {
+    
+    @NoApiResponse  // 方法级别，仅该方法不包装
+    @GetMapping("/custom")
+    public String customApi() {
+        return "raw response";
+    }
+}
+```
+
+---
+
+## 六、异常处理规范
+
+### 6.1 自定义异常
+
+使用 `IErrorException` 作为业务异常基类：
+
+```java
+// 使用错误码枚举
+throw new IErrorException(ErrorCodeEnums.ERROR_REQUEST_PARAMS_INVALID);
+
+// 带原因异常
+throw new IErrorException(ErrorCodeEnums.ERROR, cause);
+
+// 带消息参数（支持 MessageFormat 占位符）
+throw new IErrorException(ErrorCodeEnums.ERROR, "参数{0}不能为空", "username");
+```
+
+### 6.2 错误码枚举规范
+
+错误码枚举必须实现 `IErrorCode` 接口：
+
+```java
+@RequiredArgsConstructor
+@Getter
+public enum ErrorCodeEnums implements IErrorCode {
+    SUCCESS(0, "success.message", "请求成功"),
+    ERROR(-1, "error.message", "服务器错误, 请联系运维人员处理");
+    
+    private final Integer code;        // 错误码
+    private final String message;      // 国际化消息key
+    private final String defaultMessage; // 默认消息
+}
+```
+
+#### 错误码定义规范
+- **成功码**: `0`
+- **系统级错误**: 负数 `-1` 到 `-99`
+- **业务错误**: 根据业务模块自定义（建议 1000 起）
+
+### 6.3 全局异常处理
+
+框架已在 `ApiResponseAdvice` 中实现全局异常处理，支持：
+- `IErrorException`: 业务异常
+- `MethodArgumentNotValidException`: 参数校验异常（Object）
+- `ConstraintViolationException`: 参数校验异常（List）
+- `MissingServletRequestParameterException`: 参数缺失异常
+- `HttpMessageNotReadableException`: 参数格式异常
+- `IErrorHttpNoFoundException`: 404异常
+- `HttpRequestMethodNotSupportedException`: 请求方式错误
+- `Throwable`: 所有未捕获异常（兜底）
+
+---
+
+## 七、参数校验规范
+
+### 7.1 标准校验注解
+
+使用 JSR-303/JSR-380 标准注解：
+
+```java
+public class UserRequest {
+    @NotBlank(message = "用户名不能为空")
+    private String username;
+    
+    @NotNull(message = "年龄不能为空")
+    @Min(value = 1, message = "年龄必须大于0")
+    @Max(value = 150, message = "年龄不能超过150")
+    private Integer age;
+    
+    @Email(message = "邮箱格式不正确")
+    private String email;
+}
+```
+
+### 7.2 分组校验
+
+框架提供三种默认分组：`CreateGroup`, `UpdateGroup`, `QueryGroup`
+
+```java
+public class UserRequest {
+    @NotNull(groups = {UpdateGroup.class}, message = "更新时ID不能为空")
+    private Long id;
+    
+    @NotBlank(groups = {CreateGroup.class, UpdateGroup.class}, message = "用户名不能为空")
+    private String username;
+}
+
+// Controller 中使用
+@PostMapping("/user")
+public UserResponse createUser(@Validated({CreateGroup.class}) @RequestBody UserRequest request) {
+    // 创建逻辑
+}
+
+@PutMapping("/user")
+public UserResponse updateUser(@Validated({UpdateGroup.class}) @RequestBody UserRequest request) {
+    // 更新逻辑
+}
+```
+
+如果默认分组不满足需求，可自定义分组接口：
+
+```java
+public interface CustomGroup {}
+```
+
+### 7.3 集合校验
+
+使用 `ValidationList` 包装集合参数进行校验：
+
+```java
+@PostMapping("/users")
+public UserResponse createUsers(
+    @Validated({CreateGroup.class}) 
+    @NotEmpty(message = "用户列表不能为空") 
+    @RequestBody ValidationList<UserRequest> requestList
+) {
+    // 批量创建逻辑
+}
+```
+
+### 7.4 枚举校验
+
+使用 `@EnumPattern` 注解校验枚举值：
+
+```java
+public class OrderRequest {
+    @EnumPattern(
+        type = OrderStatus.class, 
+        fieldName = "code",
+        message = "订单状态不在枚举范围内"
+    )
+    private Integer status;
+}
+
+public enum OrderStatus {
+    PENDING(1), PAID(2), SHIPPED(3);
+    
+    @Getter
+    private final Integer code;
+    
+    OrderStatus(Integer code) {
+        this.code = code;
+    }
+}
+```
+
+**注意**：枚举类必须为校验字段提供 getter 方法（使用 `@Getter` 注解）
+
+---
+
+## 八、日志规范
+
+### 8.1 日志工具类
+
+使用 `LogUtil` 统一日志输出：
+
+```java
+// 基础日志
+LogUtil.log("操作成功", SoloFrameworkLoggingEnum.INFO);
+
+// 带参数日志
+LogUtil.log("用户{}登录成功", SoloFrameworkLoggingEnum.INFO, username);
+
+// 异常日志
+LogUtil.log("系统异常", SoloFrameworkLoggingEnum.ERROR, exception);
+```
+
+### 8.2 日志级别
+
+使用 `SoloFrameworkLoggingEnum` 枚举指定日志级别：
+- `TRACE`: 跟踪级别
+- `DEBUG`: 调试级别
+- `INFO`: 信息级别
+- `WARN`: 警告级别
+- `ERROR`: 错误级别
+
+### 8.3 日志注解
+
+在类上使用 `@Slf4j` 注解：
+
+```java
+@Slf4j
+@RestControllerAdvice
+public class ApiResponseAdvice {
+    public void someMethod() {
+        log.info("直接使用 log 对象");
+    }
+}
+```
+
+---
+
+## 九、国际化规范
+
+### 9.1 国际化文件配置
+
+国际化文件放置在 `resources/i18n/` 目录下：
+
+```
+resources/i18n/
+├── solo-framework_messages.properties        # 默认消息
+├── solo-framework_messages_zh_CN.properties  # 中文消息
+└── solo-framework_messages_en_US.properties  # 英文消息
+```
+
+### 9.2 消息定义规范
+
+```properties
+# solo-framework_messages_zh_CN.properties
+success.message=请求成功
+error.message=服务器错误, 请联系运维人员处理
+error.request.params.invalid.message=请求参数缺失或无效
+```
+
+```properties
+# solo-framework_messages_en_US.properties
+success.message=Request successful
+error.message=Server error, please contact operations personnel
+error.request.params.invalid.message=Request parameters are missing or invalid
+```
+
+### 9.3 消息使用规范
+
+#### 在枚举中使用
+```java
+public enum ErrorCodeEnums implements IErrorCode {
+    SUCCESS(0, "success.message", "请求成功"),
+    ERROR(-1, "error.message", "服务器错误");
+    
+    private final Integer code;
+    private final String message;        // 国际化key
+    private final String defaultMessage; // 默认消息（未开启国际化时使用）
+}
+```
+
+#### 在代码中使用
+```java
+String message = SoloFrameworkMessageUtil.getInternationMessage("success.message", "默认消息");
+```
+
+---
+
+## 十、工具类规范
+
+### 10.1 工具类设计规范
+
+- 工具类必须是 final 类或包含私有构造器，防止实例化
+- 所有方法必须是静态方法
+- 建议继承现有工具类（如 `ReflectionUtils extends ReflectUtil`）扩展功能
+
+```java
+public class LogUtil {
+    // 私有构造器
+    private LogUtil() {
+    }
+    
+    // 静态方法
+    public static void log(String message, SoloFrameworkLoggingEnum loggingEnum) {
+        // 实现
+    }
+}
+```
+
+### 10.2 常用工具类
+
+- **LogUtil**: 日志工具
+- **ReflectionUtils**: 反射工具（继承 Hutool 的 ReflectUtil）
+- **SoloFrameworkMessageUtil**: 国际化消息工具
+
+---
+
+## 十一、Swagger 文档规范
+
+### 11.1 Swagger 配置
+
+```yaml
+solo:
+  framework:
+    web:
+      swagger:
+        enabled: true                    # 是否启用swagger
+        base-packages: com.example.api   # 扫描的包名
+        title: "API Documentation"       # 文档标题
+        description: "系统API文档"        # 文档描述
+        version: "v1.0.0"                # 文档版本
+        terms-of-service-url: ""         # 服务条款URL
+        concat:                          # 联系人信息
+          name: "开发团队"
+          url: "https://example.com"
+          email: "dev@example.com"
+```
+
+### 11.2 Swagger 注解规范
+
+```java
+@Api(tags = "用户管理")
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    
+    @ApiOperation(value = "创建用户", notes = "创建新用户")
+    @ApiImplicitParams({
+        @ApiImplicitParam(name = "request", value = "用户请求对象", required = true)
+    })
+    @PostMapping
+    public ApiResponse<UserResponse> createUser(@RequestBody UserRequest request) {
+        // 实现
+    }
+}
+
+@ApiModel(description = "用户请求对象")
+public class UserRequest {
+    @ApiModelProperty(value = "用户名", required = true, example = "zhangsan")
+    private String username;
+}
+```
+
+### 11.3 访问地址
+
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- Knife4j: `http://localhost:8080/doc.html`
+
+---
+
+## 十二、数据库访问规范（MyBatis Plus）
+
+### 12.1 数据源配置
+
+框架提供默认 HikariCP 数据源配置：
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/database?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+```
+
+### 12.2 MyBatis Plus 默认配置
+
+框架已预配置：
+- **分页插件**: 支持 MySQL 分页
+- **主键策略**: AUTO（数据库自增）
+- **逻辑删除**: 字段名 `deleted`，删除值 `1`，未删除值 `0`
+- **驼峰命名**: 自动转换下划线到驼峰
+- **SQL日志**: 控制台输出 SQL
+- **懒加载**: 启用延迟加载
+
+### 12.3 实体类规范
+
+```java
+@Data
+@TableName("sys_user")
+public class User {
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    
+    private String username;
+    
+    @TableField("created_time")
+    private LocalDateTime createdTime;
+    
+    @TableLogic
+    private Integer deleted;
+}
+```
+
+---
+
+## 十三、上下文管理规范
+
+### 13.1 ApplicationContext 获取
+
+使用 `SoloFrameworkContextHolder` 获取 Spring 上下文：
+
+```java
+// 获取 ApplicationContext
+ApplicationContext context = SoloFrameworkContextHolder.getApplicationContext();
+
+// 通过 Bean 名称获取
+Object bean = SoloFrameworkContextHolder.getBean("beanName");
+
+// 通过类型获取
+UserService userService = SoloFrameworkContextHolder.getBean(UserService.class);
+
+// 通过名称和类型获取
+UserService userService = SoloFrameworkContextHolder.getBean("userService", UserService.class);
+```
+
+### 13.2 TraceId 管理
+
+使用 `SoloFrameworkTraceIdContextHolder` 管理链路追踪ID：
+
+```java
+// 设置 TraceId
+SoloFrameworkTraceIdContextHolder.setTraceId("trace-id-123");
+
+// 获取 TraceId
+String traceId = SoloFrameworkTraceIdContextHolder.getTraceId();
+
+// 移除 TraceId
+SoloFrameworkTraceIdContextHolder.removeTraceId();
+```
+
+**注意**：TraceId 使用 `TransmittableThreadLocal` 实现，支持线程池环境下的上下文传递。
+
+---
+
+## 十四、函数式编程规范
+
+框架提供两个函数式接口：
+
+### 14.1 NoArgConsumer
+
+无参数消费型接口：
+
+```java
+@FunctionalInterface
+public interface NoArgConsumer {
+    void accept();
+}
+
+// 使用示例
+NoArgConsumer consumer = () -> System.out.println("执行操作");
+consumer.accept();
+```
+
+### 14.2 NoArgSupplier
+
+无参数供给型接口：
+
+```java
+@FunctionalInterface
+public interface NoArgSupplier<T> {
+    T get();
+}
+
+// 使用示例
+NoArgSupplier<String> supplier = () -> "返回值";
+String result = supplier.get();
+```
+
+---
+
+## 十五、代码质量规范
+
+### 15.1 空值处理
+
+- 使用 `Objects.nonNull()` 和 `Objects.isNull()` 判空
+- 使用 `ObjectUtil.defaultIfNull()` 提供默认值（Hutool）
+- 使用 `@NonNull` 注解标记非空参数
+
+```java
+if (Objects.isNull(field)) {
+    return attributes;
+}
+
+LogUtil.log("异常", ObjectUtil.defaultIfNull(getLogLevel(), SoloFrameworkLoggingEnum.ERROR), ex);
+```
+
+### 15.2 字符串处理
+
+- 使用 Hutool 的 `StrUtil` 工具类
+- 使用 Apache Commons Lang3 的 `StringUtils`
+
+```java
+if (StrUtil.isNotBlank(fieldName)) {
+    // 处理
+}
+
+String capitalized = StringUtils.capitalize(name);
+```
+
+### 15.3 集合处理
+
+- 使用 Hutool 的 `MapUtil` 创建集合
+
+```java
+Map<String, Object> attributes = MapUtil.newHashMap();
+```
+
+---
+
+## 十六、资源文件规范
+
+### 16.1 Spring Boot 资源配置
+
+在 `resources/META-INF/` 目录下配置：
+
+#### spring.factories
+```properties
+# 自动配置
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+    com.solo.framework.core.configuration.SoloFrameworkCoreAutoConfiguration
+
+# 应用监听器
+org.springframework.context.ApplicationListener=\
+    com.solo.framework.core.context.SoloFrameworkCoreBootstrapListener
+
+# 上下文初始化器
+org.springframework.context.ApplicationContextInitializer=\
+    com.solo.framework.core.context.SoloFrameworkContextInitializer
+
+# 环境后置处理器
+org.springframework.boot.env.EnvironmentPostProcessor=\
+    com.solo.framework.web.processor.SoloFrameworkWebPropertyPostProcessor
+```
+
+### 16.2 application.properties
+
+```properties
+# 使用 Maven 变量替换
+solo.framework.version=${project.version}
+```
+
+### 16.3 banner.txt
+
+可在 `resources/` 目录下自定义启动 Banner。
+
+---
+
+## 十七、编码最佳实践
+
+### 17.1 条件装配
+
+使用 Spring Boot 条件注解控制 Bean 加载：
+
+```java
+@Bean
+@ConditionalOnMissingBean(CharacterEncodingFilter.class)
+public CharacterEncodingFilter characterEncodingFilter() {
+    // 实现
+}
+
+@Configuration
+@ConditionalOnClass(MybatisPlusInterceptor.class)
+public class SoloFrameworkMybatisPlusAutoConfiguration {
+    // 配置
+}
+```
+
+### 17.2 依赖注入
+
+推荐使用字段注入 + Lombok：
+
+```java
+@Setter(onMethod_ = {@Autowired})
+private SoloFrameworkWebResponseProperties properties;
+```
+
+### 17.3 异常处理
+
+- 业务异常抛出 `IErrorException`
+- 系统异常由全局异常处理器兜底
+- 关键异常必须记录日志
+
+```java
+try {
+    // 业务逻辑
+} catch (Exception e) {
+    LogUtil.log("操作失败", SoloFrameworkLoggingEnum.ERROR, e);
+    throw new IErrorException(ErrorCodeEnums.ERROR, e);
+}
+```
+
+---
+
+## 十八、版本控制规范
+
+### 18.1 版本号规范
+
+遵循语义化版本控制（Semantic Versioning）：
+
+- **格式**: `MAJOR.MINOR.PATCH`
+- **MAJOR**: 不兼容的 API 修改
+- **MINOR**: 向下兼容的功能性新增
+- **PATCH**: 向下兼容的问题修正
+
+当前版本：`1.0.0`
+
+### 18.2 TODO 规范
+
+使用标准 TODO 注释标记待处理事项：
+
+```java
+// TODO: 存在安全漏洞，延后处理 start
+<dependency>
+    <groupId>com.solo.framework</groupId>
+    <artifactId>solo-framework-starter-web</artifactId>
+</dependency>
+// TODO: 存在安全漏洞，延后处理 end
+```
+
+---
+
+## 十九、性能优化规范
+
+### 19.1 数据库连接池
+
+默认 HikariCP 配置：
+- 最大连接数: 20
+- 最小空闲连接: 5
+- 空闲超时: 30秒
+- 连接超时: 30秒
+- 最大生命周期: 180秒
+
+可根据实际情况调整。
+
+### 19.2 缓存策略
+
+MyBatis Plus 默认关闭二级缓存，使用 `STATEMENT` 级别本地缓存，避免脏数据。
+
+---
+
+## 二十、安全规范
+
+### 20.1 字符编码
+
+- 统一使用 UTF-8 编码
+- 配置 `CharacterEncodingFilter` 强制 UTF-8
+
+### 20.2 异常信息
+
+- 生产环境不暴露详细异常堆栈给前端
+- `ApiResponse` 中的 `exception` 字段仅用于调试
+
+### 20.3 参数校验
+
+- 所有外部输入必须进行参数校验
+- 使用 JSR-303 注解进行声明式校验
+
+---
+
+## 总结
+
+本规范涵盖了 Solo Framework 的所有核心开发规范，遵循这些规范可以确保代码的一致性、可维护性和高质量。在实际开发中，请严格遵守这些规范，并根据项目实际情况进行适当调整。
+
+**核心原则**：
+1. **约定优于配置**: 提供合理的默认配置，减少开发者配置工作
+2. **开箱即用**: 引入 Starter 即可使用，无需额外配置
+3. **可扩展性**: 支持用户自定义覆盖框架默认行为
+4. **统一规范**: 统一响应格式、异常处理、日志输出等
