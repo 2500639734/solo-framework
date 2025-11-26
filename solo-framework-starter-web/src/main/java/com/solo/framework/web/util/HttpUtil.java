@@ -1,15 +1,19 @@
 package com.solo.framework.web.util;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.solo.framework.web.enums.ErrorCodeEnums;
+import com.solo.framework.web.exception.IErrorException;
+import com.solo.framework.web.wrapper.BufferingClientHttpResponseWrapper;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.util.StreamUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * HTTP工具类
@@ -23,62 +27,63 @@ public class HttpUtil {
     /**
      * HTTP标准请求头集合，用于过滤
      */
-    public static final Set<String> STANDARD_HTTP_HEADERS = new HashSet<>(Arrays.asList(
-            "accept", "accept-charset", "accept-encoding", "accept-language",
-            "authorization", "cache-control", "connection", "content-encoding",
-            "content-length", "content-type", "cookie", "date", "expect",
-            "from", "host", "if-match", "if-modified-since", "if-none-match",
-            "if-range", "if-unmodified-since", "max-forwards", "pragma",
-            "proxy-authorization", "range", "referer", "te", "upgrade",
-            "user-agent", "via", "warning", "origin", "access-control-request-method",
+    public static final Set<String> STANDARD_HTTP_HEADERS = CollUtil.newHashSet(
+            "accept",
+            "accept-charset",
+            "accept-encoding",
+            "accept-language",
+            "authorization",
+            "cache-control",
+            "connection",
+            "content-encoding",
+            "content-length",
+            "content-type",
+            "cookie",
+            "date",
+            "expect",
+            "from",
+            "host",
+            "if-match",
+            "if-modified-since",
+            "if-none-match",
+            "if-range",
+            "if-unmodified-since",
+            "max-forwards",
+            "pragma",
+            "proxy-authorization",
+            "range",
+            "referer",
+            "te",
+            "upgrade",
+            "user-agent",
+            "via",
+            "warning",
+            "origin",
+            "access-control-request-method",
             "access-control-request-headers"
-    ));
+    );
 
     /**
-     * 二进制文档类型关键字
+     * HTTP浏览器或常用第三方携带的标准请求头前缀集合，用于过滤
      */
-    public static final Set<String> BINARY_DOCUMENT_SUBTYPES = new HashSet<>(Arrays.asList(
-            "pdf", "zip", "rar", "7z", "tar", "gzip",
-            "msword", "excel", "powerpoint",
-            "openxmlformats", "opendocument"
-    ));
+    private static final Set<String> STANDARD_PREFIXES = CollUtil.newHashSet("sec-", "x-ignored-");
+
+    /**
+     * HTTP JSON/FORM子类型集合
+     */
+    private static final Set<String> HTTP_JSON_FORM_SUBTYPES = CollUtil.newHashSet(
+            "json",
+            "problem+json",
+            "vnd.api+json",
+            "ld+json",
+            "collection+json",
+            "x-www-form-urlencoded",
+            "form-data"
+    );
 
     /**
      * 获取自定义请求头
-     */
-    public static Map<String, String> getCustomHeaders(Map<String, List<String>> headers) {
-        Map<String, String> result = new HashMap<>();
-
-        if (headers == null || headers.isEmpty()) {
-            return result;
-        }
-
-        // 遍历所有请求头，排除HTTP标准请求头
-        for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
-            String headerName = entry.getKey();
-            if (headerName == null) {
-                continue;
-            }
-
-            String lowerHeaderName = headerName.toLowerCase();
-            
-            // 过滤标准请求头：1. 在标准列表中  2. 以sec-开头的浏览器安全请求头
-            if (STANDARD_HTTP_HEADERS.contains(lowerHeaderName) || lowerHeaderName.startsWith("sec-")) {
-                continue;
-            }
-
-            List<String> values = entry.getValue();
-            if (values != null && !values.isEmpty()) {
-                result.put(headerName, String.join(",", values));
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * 获取自定义请求头
-     * 排除HTTP协议标准请求头，只保留应用自定义的请求头
+     * - 排除HTTP协议标准请求头，只保留应用自定义的请求头
      */
     public static Map<String, String> getHeaderMap(HttpServletRequest request) {
         Map<String, List<String>> headers = new HashMap<>();
@@ -98,6 +103,29 @@ public class HttpUtil {
     }
 
     /**
+     * 获取自定义请求头
+     */
+    public static Map<String, String> getCustomHeaders(Map<String, List<String>> headers) {
+        Map<String, String> result = new HashMap<>();
+
+        if (CollUtil.isEmpty(headers)) {
+            return result;
+        }
+
+        return headers.entrySet().stream()
+                .filter(e -> Objects.nonNull(e.getKey()))
+                .filter(e -> CollUtil.isNotEmpty(e.getValue()))
+                .filter(e -> {
+                    String lowerKey = e.getKey().toLowerCase();
+                    return ! STANDARD_HTTP_HEADERS.contains(lowerKey) && STANDARD_PREFIXES.stream().noneMatch(lowerKey::startsWith);
+                })
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> String.join(",", e.getValue())
+                ));
+    }
+
+    /**
      * 获取Http请求参数
      */
     public static Map<String, String> getRequestParams(HttpServletRequest request) {
@@ -114,124 +142,40 @@ public class HttpUtil {
     }
 
     /**
-     * 判断是否为二进制Content-Type
-     * 显式判断是二进制的情况，其他默认为非二进制（更安全）
-     *
-     * @param contentType Content-Type字符串
-     * @return true-二进制，false-非二进制
-     */
-    public static boolean isBinaryContentType(String contentType) {
-        if (StrUtil.isBlank(contentType)) {
-            return false;
-        }
-
-        String lowerContentType = contentType.toLowerCase();
-
-        // 图片、视频、音频肯定是二进制
-        if (lowerContentType.startsWith("image/") ||
-            lowerContentType.startsWith("video/") ||
-            lowerContentType.startsWith("audio/")) {
-            return true;
-        }
-
-        // application/octet-stream 明确的二进制流
-        if (lowerContentType.contains("application/octet-stream")) {
-            return true;
-        }
-
-        // 检查常见的二进制文档类型（PDF、压缩包等）
-        if (lowerContentType.startsWith("application/")) {
-            for (String binarySubtype : BINARY_DOCUMENT_SUBTYPES) {
-                if (lowerContentType.contains(binarySubtype)) {
-                    return true;
-                }
-            }
-        }
-
-        // 其他情况默认为非二进制（包括text/*、application/json、application/xml、表单等）
-        return false;
-    }
-
-    /**
      * 获取请求体内容
      *
      * @param body 请求体字节数组
-     * @param contentType Content-Type
+     * @param mediaType Content-Type
      * @return 请求体字符串
      */
-    public static String getRequestBody(byte[] body, String contentType) {
+    public static String getRequestBody(byte[] body, MediaType mediaType) {
         if (body == null || body.length == 0) {
             return "";
         }
 
-        // 检查是否为二进制文件流
-        if (isBinaryContentType(contentType)) {
-            return "[Binary Data, " + body.length + " bytes]";
-        }
-
-        // 转换为字符串
-        return new String(body, StandardCharsets.UTF_8);
+        Charset charset = ObjectUtil.defaultIfNull(mediaType.getCharset(), StandardCharsets.UTF_8);
+        return new String(body, charset);
     }
 
     /**
-     * 提取响应体内容（ClientHttpResponse）
+     * 提取响应体内容（BufferingClientHttpResponseWrapper）
      *
-     * @param response ClientHttpResponse对象
+     * @param responseWrapper BufferingClientHttpResponseWrapper对象
      * @param maxLength 最大长度，0表示不限制
      * @return 响应体字符串
      */
-    public static String extractResponseBody(ClientHttpResponse response, int maxLength) {
+    public static String extractResponseBody(BufferingClientHttpResponseWrapper responseWrapper, int maxLength) {
+        MediaType mediaType = ObjectUtil.defaultIfNull(responseWrapper.getHeaders().getContentType(), MediaType.APPLICATION_JSON);
+        Charset charset = ObjectUtil.defaultIfNull(mediaType.getCharset(), StandardCharsets.UTF_8);
         try {
-            MediaType contentType = response.getHeaders().getContentType();
-            String contentTypeStr = StrUtil.emptyToDefault(contentType != null ? contentType.toString() : null, null);
-            byte[] bodyBytes = StreamUtils.copyToByteArray(response.getBody());
-            return extractResponseBody(contentTypeStr, bodyBytes, maxLength);
+            return truncateIfNeeded(new String(responseWrapper.getBodyBytes(), charset), maxLength);
         } catch (IOException e) {
-            return "[Error reading response]";
+            throw new IErrorException(ErrorCodeEnums.ERROR.getCode(), "解析响应体失败");
         }
     }
 
     /**
-     * 提取响应体内容（HttpServletResponse）
-     *
-     * @param response HttpServletResponse对象
-     * @param bodyBytes 响应体字节数组
-     * @param maxLength 最大长度，0表示不限制
-     * @return 响应体字符串
-     */
-    public static String extractResponseBody(HttpServletResponse response, byte[] bodyBytes, int maxLength) {
-        return extractResponseBody(response.getContentType(), bodyBytes, maxLength);
-    }
-
-    /**
-     * 提取响应体内容（核心方法）
-     *
-     * @param contentType Content-Type
-     * @param bodyBytes 响应体字节数组
-     * @param maxLength 最大长度，0表示不限制
-     * @return 响应体字符串
-     */
-    public static String extractResponseBody(String contentType, byte[] bodyBytes, int maxLength) {
-        if (bodyBytes == null || bodyBytes.length == 0) {
-            return "";
-        }
-
-        // 检查是否为二进制文件流
-        if (isBinaryContentType(contentType)) {
-            return "[Binary Data, " + bodyBytes.length + " bytes]";
-        }
-
-        String bodyStr = new String(bodyBytes, StandardCharsets.UTF_8);
-        if (StrUtil.isBlank(bodyStr)) {
-            return "";
-        }
-
-        // 超长截断
-        return truncateIfNeeded(bodyStr, maxLength);
-    }
-
-    /**
-     * 截断字符串（如果超过最大长度）
+     * 截断字符串（如果超过最大长度截取）
      *
      * @param content 原始内容
      * @param maxLength 最大长度，0表示不限制
@@ -248,7 +192,7 @@ public class HttpUtil {
      * 格式化为单行，去除换行符
      *
      * @param content 原始内容
-     * @return 单行内容
+     * @return 去除换行符后的单行内容
      */
     public static String formatToSingleLine(String content) {
         if (StrUtil.isBlank(content)) {
@@ -256,6 +200,59 @@ public class HttpUtil {
         }
         // 将所有换行符、制表符替换为空格，并压缩多余空格
         return content.replaceAll("[\r\n\t]+", " ").replaceAll(" +", " ").trim();
+    }
+
+    /**
+     * 判断URI是否匹配排除列表中的任一模式
+     *
+     * @param uri 请求URI
+     * @param excludeUris 排除URI列表（支持通配符/**）
+     * @return true-匹配成功需要排除，false-不匹配
+     */
+    public static boolean matchesExcludeUri(String uri, List<String> excludeUris) {
+        if (StrUtil.isBlank(uri) || excludeUris == null || excludeUris.isEmpty()) {
+            return false;
+        }
+
+        return excludeUris.stream().anyMatch(pattern -> matchesUriPattern(uri, pattern));
+    }
+
+    /**
+     * 匹配URI模式（支持通配符）
+     *
+     * @param uri 请求URI
+     * @param pattern 匹配模式（支持/**通配符）
+     * @return true-匹配，false-不匹配
+     */
+    private static boolean matchesUriPattern(String uri, String pattern) {
+        if (StrUtil.isBlank(pattern)) {
+            return false;
+        }
+
+        // 精确匹配
+        if (uri.equals(pattern)) {
+            return true;
+        }
+
+        // 通配符匹配（如 /swagger-ui/**）
+        if (pattern.endsWith("/**")) {
+            String prefix = pattern.substring(0, pattern.length() - 2);
+            return uri.startsWith(prefix);
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断请求或响应格式是否为JSON/FORM表单
+     */
+    public static boolean isJsonOrFormContentType(MediaType mediaType) {
+        if (Objects.isNull(mediaType)) {
+            return false;
+        }
+
+        String subtype = mediaType.getSubtype().toLowerCase();
+        return HTTP_JSON_FORM_SUBTYPES.contains(subtype) || subtype.endsWith("+json");
     }
 
 }

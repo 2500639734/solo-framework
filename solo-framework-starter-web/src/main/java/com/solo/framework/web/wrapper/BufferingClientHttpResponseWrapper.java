@@ -29,6 +29,16 @@ public class BufferingClientHttpResponseWrapper implements ClientHttpResponse {
         return new ByteArrayInputStream(this.body);
     }
 
+    /**
+     * 获取已缓存的响应体字节数组
+     */
+    public byte[] getBodyBytes() throws IOException {
+        if (this.body == null) {
+            this.body = StreamUtils.copyToByteArray(this.response.getBody());
+        }
+        return this.body;
+    }
+
     @Override
     public HttpHeaders getHeaders() {
         return this.response.getHeaders();

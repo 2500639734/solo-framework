@@ -16,6 +16,7 @@ import com.solo.framework.web.exception.IErrorException;
 import com.solo.framework.web.exception.IErrorHttpNoFoundException;
 import com.solo.framework.web.response.ApiResponse;
 import com.solo.framework.web.response.ApiResponseAbstract;
+import com.solo.framework.web.util.HttpUtil;
 import com.solo.framework.web.util.SoloFrameworkMessageUtil;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -210,6 +211,13 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
             Object statusObj = responseMap.get(REQUEST_NOT_FOUND_STATUS);
             Object errorObj = responseMap.get(REQUEST_NOT_FOUND_ERROR);
             Object pathObj = responseMap.get(REQUEST_NOT_FOUND_PATH);
+            
+            // 过滤静态资源请求（favicon.ico、Swagger、Knife4j等），不抛出404异常
+            String path = Objects.toString(pathObj, "");
+            if (HttpUtil.matchesExcludeUri(path, SoloFrameworkRuntimeInfo.INSTANCE.getSoloFrameworkProperties().getWeb().getRequestLogging().getExcludeUris())) {
+                return;
+            }
+            
             if (Integer.valueOf(HttpStatus.NOT_FOUND.value()).equals(statusObj) && REQUEST_NOT_FOUND_MESSAGE.equals(errorObj)) {
                 throw new IErrorHttpNoFoundException(ErrorCodeEnums.ERROR_REQUEST_URI_INVALID.getCode(), Objects.toString(errorObj, "") + ": " + Objects.toString(pathObj, ""));
             }

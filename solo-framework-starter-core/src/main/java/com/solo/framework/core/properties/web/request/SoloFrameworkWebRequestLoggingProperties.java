@@ -2,6 +2,9 @@ package com.solo.framework.core.properties.web.request;
 
 import lombok.Data;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * HTTP请求日志配置
  */
@@ -15,9 +18,19 @@ public class SoloFrameworkWebRequestLoggingProperties {
     private boolean enabled = true;
 
     /**
-     * 响应体最大打印长度
-     * 默认: 2048
+     * 需要排除的URI路径列表（不打印日志）
+     * 默认排除Swagger、Knife4j、error及favicon.ico等系统路径
      */
-    private int maxResponseBodyLength = 2048;
+    private List<String> excludeUris = Arrays.asList(
+            "/swagger-ui/**",
+            "/swagger-resources/**",
+            "/swagger-resources",
+            "/v2/api-docs",
+            "/v3/api-docs",
+            "/doc.html",
+            "/webjars/**",
+            "/favicon.ico",
+            "/error"
+    );
 
 }
