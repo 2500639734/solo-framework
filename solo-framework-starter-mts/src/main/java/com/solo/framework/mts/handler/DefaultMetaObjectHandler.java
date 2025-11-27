@@ -19,17 +19,17 @@ public class DefaultMetaObjectHandler implements MetaObjectHandler {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, now);
-        this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, now);
+        this.strictInsertFill(metaObject, "createdAt", LocalDateTime.class, now);
+        this.strictInsertFill(metaObject, "lastModifiedAt", LocalDateTime.class, now);
         this.strictInsertFill(metaObject, "deleted", Integer.class, DeletedEnum.NORMAL.getValue());
         this.strictInsertFill(metaObject, "version", Integer.class, 1);
 
         LoginUser<?> user = SoloFrameworkUserContextHolder.getUser();
         if (Objects.nonNull(user)) {
-            this.strictInsertFill(metaObject, "createUserCode", String.class, user.getUserCode());
-            this.strictInsertFill(metaObject, "createUserName", String.class, user.getUserName());
-            this.strictInsertFill(metaObject, "updateUserCode", String.class, user.getUserCode());
-            this.strictInsertFill(metaObject, "updateUserName", String.class, user.getUserName());
+            this.strictInsertFill(metaObject, "creatorCode", String.class, user.getUserCode());
+            this.strictInsertFill(metaObject, "creatorName", String.class, user.getUserName());
+            this.strictInsertFill(metaObject, "modifierCode", String.class, user.getUserCode());
+            this.strictInsertFill(metaObject, "modifierName", String.class, user.getUserName());
         }
     }
 
@@ -40,12 +40,12 @@ public class DefaultMetaObjectHandler implements MetaObjectHandler {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, now);
+        this.strictUpdateFill(metaObject, "lastModifiedAt", LocalDateTime.class, now);
 
         LoginUser<?> user = SoloFrameworkUserContextHolder.getUser();
         if (Objects.nonNull(user)) {
-            this.strictInsertFill(metaObject, "updateUserCode", String.class, user.getUserCode());
-            this.strictInsertFill(metaObject, "updateUserName", String.class, user.getUserName());
+            this.strictInsertFill(metaObject, "modifierCode", String.class, user.getUserCode());
+            this.strictInsertFill(metaObject, "modifierName", String.class, user.getUserName());
         }
     }
 

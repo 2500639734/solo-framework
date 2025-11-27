@@ -16,8 +16,9 @@ import com.solo.framework.web.exception.IErrorException;
 import com.solo.framework.web.exception.IErrorHttpNoFoundException;
 import com.solo.framework.web.response.ApiResponse;
 import com.solo.framework.web.response.ApiResponseAbstract;
-import com.solo.framework.web.util.SoloFrameworkWebRequestUtil;
 import com.solo.framework.web.util.SoloFrameworkMessageUtil;
+import com.solo.framework.web.util.SoloFrameworkWebRequestUtil;
+import com.solo.framework.web.wrapper.PageResponseWrapper;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,12 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
         // 将其统一包装为ApiResponse对象，然后手动构建为JSON字符串后返回
         if (body instanceof String) {
             return JSON.toJSONString(ApiResponse.success(body));
+        }
+
+        // 如果返回的是Mybatis Plus Page类型，则进行分页包装
+        Object wrappedBody = PageResponseWrapper.wrapIfPage(body);
+        if (soloFrameworkWebResponseProperties.isWrapperPage() && wrappedBody != body) {
+            return ApiResponse.success(wrappedBody);
         }
 
         // 其它类型: 包装为ApiResponse统一返回结果
@@ -296,6 +303,11 @@ public class ApiResponseAdvice implements ResponseBodyAdvice<Object>, Ordered, I
                 message;
     }
 
+    /**
+     * 判断是否需要展示校验错误字段
+     * @param fieldName 字段名称
+     * @return 是否需要展示校验错误字段
+     */
     private boolean showValidFailField(String fieldName) {
         return soloFrameworkWebResponseProperties.isShowValidFailField() && StrUtil.isNotBlank(fieldName);
     }

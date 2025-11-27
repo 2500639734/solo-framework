@@ -35,4 +35,9 @@ public class SoloFrameworkWebResponseProperties {
      */
     private boolean showValidFailField = false;
 
+    /**
+     * 是否包装Mybatis Plus分页字段
+     */
+    private boolean wrapperPage = true;
+
 }
