@@ -18,6 +18,12 @@ public class SoloFrameworkWebRequestLoggingProperties {
     private boolean enabled = true;
 
     /**
+     * 是否打印用户信息（code、name）
+     * 默认: true
+     */
+    private boolean logUserInfo = true;
+
+    /**
      * 需要排除的URI路径列表（不打印日志）
      * 默认排除Swagger、Knife4j、error及favicon.ico等系统路径
      */

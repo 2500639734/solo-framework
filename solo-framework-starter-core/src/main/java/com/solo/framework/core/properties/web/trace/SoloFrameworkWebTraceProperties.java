@@ -11,6 +11,6 @@ public class SoloFrameworkWebTraceProperties {
     /**
      * 是否启用TraceId上下文管理（默认开启）
      */
-    private Boolean enabled = true;
+    private boolean enabled = true;
 
 }

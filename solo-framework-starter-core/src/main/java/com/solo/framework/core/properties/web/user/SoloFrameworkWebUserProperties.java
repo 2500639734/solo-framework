@@ -12,6 +12,6 @@ public class SoloFrameworkWebUserProperties {
      * 是否启用用户信息上下文管理（默认开启）
      * 开启后会注入默认系统用户实现，如果有自定义实现则使用自定义实现
      */
-    private Boolean enabled = true;
+    private boolean enabled = true;
 
 }

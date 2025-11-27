@@ -4,7 +4,9 @@ import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
 import com.solo.framework.common.util.LogUtil;
+import com.solo.framework.core.context.SoloFrameworkUserContextHolder;
 import com.solo.framework.core.properties.web.request.SoloFrameworkWebRequestLoggingProperties;
+import com.solo.framework.core.user.LoginUser;
 import com.solo.framework.web.annotation.NoRequestLogging;
 import com.solo.framework.web.util.SoloFrameworkWebRequestUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * HTTP请求日志拦截器, 打印接口请求和响应信息
@@ -114,7 +117,13 @@ public class HttpRequestLoggingInterceptor implements HandlerInterceptor {
          String paramsJsonLog = SoloFrameworkWebRequestUtil.formatToSingleLine(paramsJson);
 
          LogUtil.log("接口请求开始 ======>>> url = {}, method = {}, headers = {}, params = {}", SoloFrameworkLoggingEnum.INFO, url, method, headersJsonLog, paramsJsonLog);
-    }
+         if (loggingConfig.isLogUserInfo()) {
+             LoginUser<?> loginUser = SoloFrameworkUserContextHolder.getUser();
+             if (Objects.nonNull(loginUser)) {
+                 LogUtil.log("接口请求用户 ======>>> userCode = {}, userName = {}", SoloFrameworkLoggingEnum.INFO, loginUser.getUserCode(), loginUser.getUserName());
+             }
+         }
+     }
 
     /**
      * 打印响应日志

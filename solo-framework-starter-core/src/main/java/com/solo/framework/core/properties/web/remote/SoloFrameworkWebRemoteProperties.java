@@ -91,6 +91,7 @@ public class SoloFrameworkWebRemoteProperties {
          * 空闲连接清理间隔（毫秒）
          */
         private long evictIdleConnections = 60000;
+
     }
 
     /**
@@ -98,6 +99,7 @@ public class SoloFrameworkWebRemoteProperties {
      */
     @Data
     public static class TimeoutProperties {
+
         /**
          * 连接超时时间（毫秒）
          */
@@ -112,6 +114,7 @@ public class SoloFrameworkWebRemoteProperties {
          * 写入超时时间（毫秒）- 仅OkHttp支持
          */
         private int writeTimeout = 30000;
+
     }
 
     /**
@@ -119,11 +122,13 @@ public class SoloFrameworkWebRemoteProperties {
      */
     @Data
     public static class RequestLoggingProperties {
+
         /**
          * 响应体最大打印长度（字节）
          * 默认: 2048 (2KB)
          */
         private int maxResponseBodyLength = 2048;
+
     }
 
 }
