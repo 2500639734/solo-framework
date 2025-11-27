@@ -6,7 +6,7 @@ import com.solo.framework.common.enumeration.SoloFrameworkLoggingEnum;
 import com.solo.framework.common.util.LogUtil;
 import com.solo.framework.core.properties.web.request.SoloFrameworkWebRequestLoggingProperties;
 import com.solo.framework.web.annotation.NoRequestLogging;
-import com.solo.framework.web.util.HttpUtil;
+import com.solo.framework.web.util.SoloFrameworkWebRequestUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.method.HandlerMethod;
@@ -74,7 +74,7 @@ public class HttpRequestLoggingInterceptor implements HandlerInterceptor {
      * 检查URI是否需要排除（不打印日志）
      */
     private boolean shouldExcludeUri(String requestUri) {
-        return HttpUtil.matchesExcludeUri(requestUri, loggingConfig.getExcludeUris());
+        return SoloFrameworkWebRequestUtil.matchesExcludeUri(requestUri, loggingConfig.getExcludeUris());
     }
 
     /**
@@ -105,13 +105,13 @@ public class HttpRequestLoggingInterceptor implements HandlerInterceptor {
 
          // 是否是json或者表单格式, 如果不是就不打印入参
          String paramsJson = "";
-         if (StrUtil.isBlank(request.getContentType()) || HttpUtil.isJsonOrFormContentType(MediaType.parseMediaType(request.getContentType()))) {
-             Map<String, String> paramsMap = HttpUtil.getRequestParams(request);
+         if (StrUtil.isBlank(request.getContentType()) || SoloFrameworkWebRequestUtil.isJsonOrFormContentType(MediaType.parseMediaType(request.getContentType()))) {
+             Map<String, String> paramsMap = SoloFrameworkWebRequestUtil.getRequestParams(request);
              paramsJson = JSON.toJSONString(paramsMap);
          }
 
-         String headersJsonLog = JSON.toJSONString(HttpUtil.getHeaderMap(request));
-         String paramsJsonLog = HttpUtil.formatToSingleLine(paramsJson);
+         String headersJsonLog = JSON.toJSONString(SoloFrameworkWebRequestUtil.getHeaderMap(request));
+         String paramsJsonLog = SoloFrameworkWebRequestUtil.formatToSingleLine(paramsJson);
 
          LogUtil.log("接口请求开始 ======>>> url = {}, method = {}, headers = {}, params = {}", SoloFrameworkLoggingEnum.INFO, url, method, headersJsonLog, paramsJsonLog);
     }

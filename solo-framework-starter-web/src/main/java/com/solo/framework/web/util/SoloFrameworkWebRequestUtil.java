@@ -15,12 +15,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * HTTP工具类
- */
-public class HttpUtil {
+public class SoloFrameworkWebRequestUtil {
 
-    private HttpUtil() {
+    private SoloFrameworkWebRequestUtil() {
 
     }
 

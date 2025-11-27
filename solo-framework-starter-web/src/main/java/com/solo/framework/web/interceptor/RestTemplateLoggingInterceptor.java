@@ -6,7 +6,7 @@ import com.solo.framework.common.util.LogUtil;
 import com.solo.framework.core.properties.web.remote.SoloFrameworkWebRemoteProperties;
 import com.solo.framework.web.enums.ErrorCodeEnums;
 import com.solo.framework.web.exception.IErrorException;
-import com.solo.framework.web.util.HttpUtil;
+import com.solo.framework.web.util.SoloFrameworkWebRequestUtil;
 import com.solo.framework.web.wrapper.BufferingClientHttpResponseWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpRequest;
@@ -57,16 +57,16 @@ public class RestTemplateLoggingInterceptor implements ClientHttpRequestIntercep
     private void logRequest(HttpRequest request, byte[] body) {
         String url = request.getURI().toString();
         String method = Objects.requireNonNull(request.getMethod()).name();
-        Map<String, String> headers = HttpUtil.getCustomHeaders(request.getHeaders());
+        Map<String, String> headers = SoloFrameworkWebRequestUtil.getCustomHeaders(request.getHeaders());
 
         // 是否是json或者表单格式, 如果不是就不打印入参
         MediaType mediaType = request.getHeaders().getContentType();
         String paramsJson = "";
-        if (Objects.isNull(mediaType) || HttpUtil.isJsonOrFormContentType(mediaType)) {
-            paramsJson = HttpUtil.getRequestBody(body, mediaType);
+        if (Objects.isNull(mediaType) || SoloFrameworkWebRequestUtil.isJsonOrFormContentType(mediaType)) {
+            paramsJson = SoloFrameworkWebRequestUtil.getRequestBody(body, mediaType);
         }
 
-        LogUtil.log("接口远程调用开始, url = {}, method = {}, headers = {}, params = {}", SoloFrameworkLoggingEnum.INFO, url, method, JSON.toJSONString(headers), HttpUtil.formatToSingleLine(paramsJson));
+        LogUtil.log("接口远程调用开始, url = {}, method = {}, headers = {}, params = {}", SoloFrameworkLoggingEnum.INFO, url, method, JSON.toJSONString(headers), SoloFrameworkWebRequestUtil.formatToSingleLine(paramsJson));
     }
 
     /**
@@ -78,13 +78,13 @@ public class RestTemplateLoggingInterceptor implements ClientHttpRequestIntercep
         // 是否是json或者表单格式, 如果不是就不打印返参
         String responseBody = "";
         MediaType mediaType = response.getHeaders().getContentType();
-        if (Objects.nonNull(mediaType) && HttpUtil.isJsonOrFormContentType(mediaType)) {
+        if (Objects.nonNull(mediaType) && SoloFrameworkWebRequestUtil.isJsonOrFormContentType(mediaType)) {
             BufferingClientHttpResponseWrapper responseWrapper = new BufferingClientHttpResponseWrapper(response);
-            responseBody = HttpUtil.extractResponseBody(responseWrapper, loggingConfig.getMaxResponseBodyLength());
+            responseBody = SoloFrameworkWebRequestUtil.extractResponseBody(responseWrapper, loggingConfig.getMaxResponseBodyLength());
             response = responseWrapper;
         }
 
-        LogUtil.log("接口远程调用结束, url = {}, response = {}, duration = {}ms", SoloFrameworkLoggingEnum.INFO, url, HttpUtil.formatToSingleLine(responseBody), duration);
+        LogUtil.log("接口远程调用结束, url = {}, response = {}, duration = {}ms", SoloFrameworkLoggingEnum.INFO, url, SoloFrameworkWebRequestUtil.formatToSingleLine(responseBody), duration);
 
         return response;
     }

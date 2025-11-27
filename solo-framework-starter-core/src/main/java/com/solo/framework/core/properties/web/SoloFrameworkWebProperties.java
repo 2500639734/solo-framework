@@ -7,6 +7,8 @@ import com.solo.framework.core.properties.web.remote.SoloFrameworkWebRemotePrope
 import com.solo.framework.core.properties.web.request.SoloFrameworkWebRequestLoggingProperties;
 import com.solo.framework.core.properties.web.response.SoloFrameworkWebResponseProperties;
 import com.solo.framework.core.properties.web.swagger.SoloFrameworkWebSwaggerProperties;
+import com.solo.framework.core.properties.web.trace.SoloFrameworkWebTraceProperties;
+import com.solo.framework.core.properties.web.user.SoloFrameworkWebUserProperties;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -50,5 +52,17 @@ public class SoloFrameworkWebProperties {
      */
     @NestedConfigurationProperty
     private SoloFrameworkWebRemoteProperties remote = new SoloFrameworkWebRemoteProperties();
+
+    /**
+     * 框架用户信息相关配置
+     */
+    @NestedConfigurationProperty
+    private SoloFrameworkWebUserProperties user = new SoloFrameworkWebUserProperties();
+
+    /**
+     * 框架TraceId相关配置
+     */
+    @NestedConfigurationProperty
+    private SoloFrameworkWebTraceProperties trace = new SoloFrameworkWebTraceProperties();
 
 }

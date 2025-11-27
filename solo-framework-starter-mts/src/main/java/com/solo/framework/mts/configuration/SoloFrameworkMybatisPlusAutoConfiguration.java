@@ -115,11 +115,7 @@ public class SoloFrameworkMybatisPlusAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(MetaObjectHandler.class)
-    @ConditionalOnProperty(
-            name = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_MTS_PREFIX + ".enableMetaObjectHandler",
-            havingValue = "true",
-            matchIfMissing = true
-    )
+    @ConditionalOnProperty(name = SoloFrameworkPropertiesPrefixConstant.SOLO_FRAMEWORK_MTS_PREFIX + ".enableMetaObjectHandler", havingValue = "true", matchIfMissing = true)
     public MetaObjectHandler defaultMetaObjectHandler() {
         return new DefaultMetaObjectHandler();
     }
