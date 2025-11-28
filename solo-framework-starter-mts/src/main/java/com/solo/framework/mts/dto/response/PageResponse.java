@@ -34,7 +34,7 @@ public class PageResponse<T> implements Serializable {
      * 例如 current=1 表示第一页，current=2 表示第二页
      */
     @ApiModelProperty(value = "当前页码，从1开始", example = "1", required = true)
-    private Long currentPageNum;
+    private Long pageNum;
 
     /**
      * 每页记录数
@@ -81,13 +81,13 @@ public class PageResponse<T> implements Serializable {
     /**
      * 构造函数
      *
-     * @param currentPageNum 当前页码
+     * @param pageNum 当前页码
      * @param pageSize 每页记录数
      * @param total   总记录数
      * @param records 当前页数据列表
      */
-    public PageResponse(Long currentPageNum, Long pageSize, Long total, List<T> records) {
-        this.currentPageNum = currentPageNum;
+    public PageResponse(Long pageNum, Long pageSize, Long total, List<T> records) {
+        this.pageNum = pageNum;
         this.pageSize = pageSize;
         this.total = total;
         this.records = records;
@@ -103,13 +103,13 @@ public class PageResponse<T> implements Serializable {
      */
     public PageResponse(Page<T> page) {
         if (Objects.nonNull(page)) {
-            this.currentPageNum = page.getCurrent();
+            this.pageNum = page.getCurrent();
             this.pageSize = page.getSize();
             this.total = page.getTotal();
             this.records = page.getRecords();
             this.totalPages = page.getPages();
         } else {
-            this.currentPageNum = 0L;
+            this.pageNum = 0L;
             this.pageSize = 0L;
             this.total = 0L;
             this.totalPages = 0L;
