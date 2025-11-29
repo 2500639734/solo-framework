@@ -3,35 +3,43 @@ package com.solo.framework.web.response;
 import com.alibaba.fastjson2.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.solo.framework.web.enums.IErrorCode;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.NonNull;
 
+@ApiModel(value = "ApiResponse", description = "基础响应类，包含请求响应码、请求响应提示信息、请求返参数据、请求Id、请求响应时间戳等信息")
 @Data
 public abstract class ApiResponseAbstract<T> {
 
     /**
      * 请求响应码
      */
+    @ApiModelProperty(value = "请求响应码", example = "200")
     private int code;
 
     /**
      * 请求响应提示信息
      */
+    @ApiModelProperty(value = "请求响应提示信息", example = "请求成功")
     private String message;
 
     /**
      * 请求返参数据
      */
+    @ApiModelProperty(value = "请求返参数据", example = "{}")
     private T data;
 
     /**
      * 请求Id
      */
+    @ApiModelProperty(value = "请求Id", example = "e6eb03c7-7aaa-4982-96e7-b831c3f0eb0b")
     private String traceId;
 
     /**
      * 请求异常的类路径
      */
+    @ApiModelProperty(value = "请求异常的类路径", example = "com.solo.framework.web.response.ApiResponseAbstract")
     private String exceptionClass;
 
     /**
@@ -45,6 +53,7 @@ public abstract class ApiResponseAbstract<T> {
     /**
      * 请求响应时间戳
      */
+    @ApiModelProperty(value = "请求响应时间戳", example = "1764429597657")
     private long timestamp;
 
     /**
